@@ -9,15 +9,21 @@ use App\Services\ImageManagerService;
 use App\Services\PdfGeneratorService;
 use App\Services\SharepointUploaderService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 
 class PdfController extends Controller
 {
-    public function generate(
-        StoreParticipantRequest $request,
-        PdfGeneratorService $pdfService
-    ): RedirectResponse {
+    public function generate(StoreParticipantRequest $request, string $type): RedirectResponse
+    {
+        // Validamos que el tipo esté registrado en el config/pdf.php
+        if (!array_key_exists($type, config('pdf.types'))) {
+            abort(404, 'Tipo de formulario no válido');
+        }
+
+        // Creamos manualmente el servicio con el tipo
+        $pdfService = new PdfGeneratorService($type);
+
+        // Validación y recopilación de datos
         $participant = $request->validated();
         $companyInfo = null;
 
@@ -26,7 +32,7 @@ class PdfController extends Controller
         }
 
         $formData = FormDataFormatterService::format($participant, $companyInfo);
-        $generatedPdfName = $pdfService->generateFilledPdf($formData);
+        $generatedPdfName = $pdfService->generateFilledPdf($formData, $type);
 
         if (!$generatedPdfName) {
             Log::error('Error al generar el PDF relleno', [
@@ -36,6 +42,7 @@ class PdfController extends Controller
             return $this->errorRedirect();
         }
 
+        // Firma
         $signatureImageName = ImageManagerService::uploadImage($participant['signature']);
         if (!$signatureImageName) {
             Log::error('Error al subir la imagen de firma', [
@@ -48,10 +55,10 @@ class PdfController extends Controller
         $signedPdfName = $pdfService->addSignatureToPdf(
             $generatedPdfName,
             $signatureImageName,
-            70,
-            150,
-            90,
-            3
+            70, // x
+            150, // y
+            90, // width
+            3 // page
         );
 
         if (!$signedPdfName) {
@@ -64,6 +71,7 @@ class PdfController extends Controller
             return $this->errorRedirect();
         }
 
+        // Subida a SharePoint si no es local
         if (!app()->environment('local')) {
             try {
                 SharepointUploaderService::uploadPdf(
@@ -71,7 +79,7 @@ class PdfController extends Controller
                     $participant['nif'],
                     $participant['name'],
                     $participant['firstSurname'],
-                    'MATRICULAS WEB/SEPE'
+                    config("pdf.types.$type.upload_path") // Ruta dinámica
                 );
             } catch (\Throwable $e) {
                 Log::error('Error al subir el PDF firmado a SharePoint', [
@@ -83,9 +91,7 @@ class PdfController extends Controller
             Log::info("Subida a SharePoint simulada: {$signedPdfName} no se sube en entorno local.");
         }
 
-
         // Limpiar archivos temporales
-        // $pdfService->deletePdf('signed', $signedPdfName);
         $pdfService->deletePdf('generated', $generatedPdfName);
         ImageManagerService::deleteImage($signatureImageName);
 

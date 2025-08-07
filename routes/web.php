@@ -18,9 +18,17 @@ Route::get('/', function () {
     return redirect('sepe');
 });
 
+// Ruta dinámica para mostrar el formulario
+Route::get('{type}', function ($type) {
+    if (!array_key_exists($type, config('pdf.types'))) {
+        abort(404);
+    }
 
-Route::get('sepe', function (){
-    return view('sepe');
+    return view($type, ['type' => $type]);
 });
 
-Route::post('sepe', [PdfController::class, 'generate']);
+
+// Ruta dinámica para procesar el formulario
+Route::post('{type}', [PdfController::class, 'generate'])
+    ->where('type', 'sepe|eoi|mec');
+

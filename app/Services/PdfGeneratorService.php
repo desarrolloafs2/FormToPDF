@@ -8,16 +8,31 @@ use Illuminate\Support\Str;
 use mikehaertl\pdftk\Pdf;
 use FPDF;
 
+use App\Traits\GeneratesPdfFilename;
+
 class PdfGeneratorService
 {
     protected string $layoutPath;
+    protected string $uploadPath;
     protected string $generatedPath;
     protected string $signedPath;
     protected string $imagePath;
+    protected string $type;
 
-    public function __construct()
+    use GeneratesPdfFilename;
+
+    public function __construct(string $type)
     {
-        $this->layoutPath = storage_path('app/' . config('pdf.layout_path'));
+        $types = config('pdf.types');
+
+        if (!array_key_exists($type, $types)) {
+            throw new \InvalidArgumentException("Tipo de formulario PDF inválido: {$type}");
+        }
+
+        $this->type = $type;
+
+        $this->layoutPath = storage_path('app/' . $types[$type]['layout']);
+        $this->uploadPath = storage_path('app/' . $types[$type]['upload_path']);
         $this->generatedPath = storage_path('app/' . config('pdf.generated_path'));
         $this->signedPath = storage_path('app/' . config('pdf.signed_path'));
         $this->imagePath = storage_path('app/' . config('pdf.image_path'));
@@ -30,7 +45,7 @@ class PdfGeneratorService
             return null;
         }
 
-        $fileName = 'annex1-' . now()->format('YmdHis') . '-' . mt_rand(1000, 9999) . '.pdf';
+        $fileName = $this->generatePdfFilename($this->type);
         $outputPath = $this->generatedPath . $fileName;
 
         $pdf = new Pdf($this->layoutPath, [
@@ -63,7 +78,6 @@ class PdfGeneratorService
         $overlayAbsolute = storage_path('app/pdf/generated/overlay-' . Str::uuid() . '.pdf');
 
         $pdftkPath = env('PDFTK_PATH', 'C:\Program Files (x86)\PDFtk Server\bin\pdftk.exe');
-        Log::info("Trying pdftk with path: $pdftkPath");
 
         if (!file_exists($inputPdfPath)) {
             Log::error("Input PDF not found: $inputPdfPath");
@@ -81,27 +95,19 @@ class PdfGeneratorService
         }
 
         try {
-            // Lee datos del PDF con path correcto
             $pdfReader = new Pdf($inputPdfPath, [
                 'command' => $pdftkPath,
                 'useExec' => true,
             ]);
             $data = $pdfReader->getData();
 
-            if (!$data) {
-                Log::error("No se pudo obtener metadata del PDF: " . $pdfReader->getError());
-                return null;
-            }
-
-            // Determina la cantidad de páginas
-            if (preg_match('/NumberOfPages:\s+(\d+)/', $data, $matches)) {
-                $pageCount = (int) $matches[1];
-            } else {
+            if (!$data || !preg_match('/NumberOfPages:\s+(\d+)/', $data, $matches)) {
                 Log::error("No se pudo determinar el número de páginas del PDF.");
                 return null;
             }
 
-            // Crea overlay
+            $pageCount = (int) $matches[1];
+
             $overlay = new FPDF('P', 'mm', 'A4');
             for ($i = 1; $i <= $pageCount; $i++) {
                 $overlay->AddPage();
@@ -109,9 +115,9 @@ class PdfGeneratorService
                     $overlay->Image($imagePath, $x, $y, $width);
                 }
             }
+
             $overlay->Output('F', $overlayAbsolute);
 
-            // Ejecuta multistamp con pdftk correctamente configurado
             $pdf = new Pdf($inputPdfPath, [
                 'command' => $pdftkPath,
                 'useExec' => true,
@@ -136,7 +142,6 @@ class PdfGeneratorService
             }
         }
     }
-
 
     public function deletePdf(string $type, string $name): void
     {
