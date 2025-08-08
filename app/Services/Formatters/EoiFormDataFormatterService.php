@@ -13,11 +13,11 @@ class EoiFormDataFormatterService implements PdfFormFormatterInterface
         $data = [];
 
         // DATOS PERSONALES
-        $data['Cuadro de texto 1_4'] = $participant['apellido1'] ?? '';
+        $data['Cuadro de texto 1_4'] = $participant['firstSurname'] ?? '';
         $data['Cuadro de texto 1'] = $participant['apellido2'] ?? '';
-        $data['Cuadro de texto 1_2'] = $participant['nombre'] ?? '';
+        $data['Cuadro de texto 1_2'] = $participant['name'] ?? '';
         $data['Cuadro de lista 1'] = $participant['tipo_documento'] ?? '';
-        $data['Cuadro de texto 1_3'] = $participant['documento'] ?? '';
+        $data['Cuadro de texto 1_3'] = $participant['nif'] ?? '';
         $data['Cuadro de lista 1_2'] = $participant['sexo'] ?? '';
         $data['Campo de fecha 1'] = $participant['fecha_nacimiento'] ?? '';
 

@@ -6,10 +6,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const validator = new JustValidate(`#${form.id}`);
 
     validator
-        .addField('#apellido1', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
-        .addField('#nombre', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
+        .addField('#firstSurname', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
+        .addField('#name', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
         .addField('#tipo_documento', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
-        .addField('#documento', [
+        .addField('#nif', [
             { rule: 'required', errorMessage: 'Campo obligatorio' },
             {
                 validator: (value, fields) => {

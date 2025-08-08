@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\DniNieRule;
+use App\Rules\CifOrDniNieRule;
 
 class EoiParticipantRequest extends FormRequest
 {
@@ -15,27 +17,27 @@ class EoiParticipantRequest extends FormRequest
     {
         return [
             // Datos personales
-            'apellido1' => ['required', 'string', 'max:100'],
-            'apellido2' => ['nullable', 'string', 'max:100'],
-            'nombre' => ['required', 'string', 'max:100'],
+            'firstSurname' => ['required', 'string', 'max:100'],
+            'apellido2' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:100'],
             'tipo_documento' => ['required', 'in:DNI,NIE,PASAPORTE'],
-            'documento' => ['required', 'string', 'max:20'],
-            'sexo' => ['nullable', 'in:Hombre,Mujer,Otro'],
-            'fecha_nacimiento' => ['nullable', 'date'],
+            'nif' => ['required', new DniNieRule()],
+            'sexo' => ['required', 'in:Hombre,Mujer,Otro'],
+            'fecha_nacimiento' => ['required', 'date', 'before:today'],
             'direccion' => ['nullable', 'string', 'max:255'],
-            'ciudad' => ['nullable', 'string', 'max:100'],
-            'codigo_postal' => ['nullable', 'string', 'max:10'],
-            'provincia' => ['nullable', 'string', 'max:100'],
+            'ciudad' => ['required', 'string', 'max:100'],
+            'codigo_postal' => ['nullable', 'regex:/^(0[1-9]|[1-4][0-9]|5[0-2])\d{3}$/'],
+            'provincia' => ['required', 'string', 'max:100'],
             'ccaa' => ['nullable', 'string', 'max:100'],
-            'telefono' => ['required'],
+            'telefono' => ['required', 'regex:/^(?:\+34|34)?\s?(6|7|8|9)\d{2}[\s-]?\d{3}[\s-]?\d{3}$/'],
             'email' => ['required', 'email', 'max:150'],
 
             // Datos profesionales
             'empresa' => ['required', 'string', 'max:255'],
-            'nif_empresa' => ['required', 'string', 'max:20'],
+            'nif_empresa' => ['required', new CifOrDniNieRule()],
             'actividad_empresa' => ['nullable', 'string', 'max:255'],
             'tamano_empresa' => ['nullable', 'string', 'max:100'],
-            'province' => ['nullable', 'string', 'max:100'], // o cambiarlo a 'provincia_empresa'
+            'province' => ['required', 'string', 'max:100'], // o cambiarlo a 'provincia_empresa'
             'ccaa_empresa' => ['nullable', 'string', 'max:100'],
             'antiguedad_empresa' => ['nullable', 'string', 'max:50'],
             'facturacion' => ['nullable', 'string', 'max:100'],
@@ -47,7 +49,7 @@ class EoiParticipantRequest extends FormRequest
 
 
             // Nuevos campos adicionales
-            'reside_en_localidad_menor_5000' => ['required',],
+            'reside_en_localidad_menor_5000' => ['nullable',],
             'discapacidad' => ['nullable'],
             'nivel_estudios' => ['required'],
             'titulacion' => ['nullable', 'string', 'max:150'],
@@ -84,17 +86,20 @@ class EoiParticipantRequest extends FormRequest
             'email' => 'El campo :attribute debe ser un correo electrónico válido.',
             'accepted' => 'Debe aceptar el campo :attribute.',
             'in' => 'El valor seleccionado para :attribute no es válido.',
+            'postalCode.regex' => 'El formato del código postal es incorrecto',
+            'phone.regex' => 'El formato del teléfono es inválido',
+            'birthdate.before' => 'La fecha de nacimiento debe ser anterior a hoy',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'apellido1' => 'primer apellido',
+            'firstSurname' => 'primer apellido',
             'apellido2' => 'segundo apellido',
-            'nombre' => 'nombre',
+            'name' => 'nombre',
             'tipo_documento' => 'tipo de documento',
-            'documento' => 'número de documento',
+            'nif' => 'número de documento',
             'sexo' => 'sexo',
             'fecha_nacimiento' => 'fecha de nacimiento',
             'direccion' => 'dirección',

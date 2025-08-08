@@ -83,14 +83,13 @@ class PdfController extends Controller
         }
 
         // Subida a SharePoint si no es local
-        if (!app()->environment('local')) {
             try {
                 SharepointUploaderService::uploadPdf(
                     $signedPdfName,
                     $participant['nif'],
                     $participant['name'],
                     $participant['firstSurname'],
-                    config("pdf.types.$type.upload_path") // Ruta dinámica
+                    config("pdf.types.$type.upload_path")
                 );
             } catch (\Throwable $e) {
                 Log::error('Error al subir el PDF firmado a SharePoint', [
@@ -98,10 +97,7 @@ class PdfController extends Controller
                     'exception' => $e->getMessage(),
                 ]);
             }
-        } else {
-            Log::info("Subida a SharePoint simulada: {$signedPdfName} no se sube en entorno local.");
-        }
-
+       
         // Limpiar archivos temporales
         $pdfService->deletePdf('generated', $generatedPdfName);
         ImageManagerService::deleteImage($signatureImageName);

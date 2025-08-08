@@ -29,8 +29,8 @@
                         <!-- Apellidos -->
                         <div class="row">
                             <div class="col-lg-6 col-12 mb-4">
-                                <label for="apellido1" class="form-label">Primer Apellido *</label>
-                                <input type="text" class="form-control" id="apellido1" name="apellido1" required>
+                                <label for="firstSurname" class="form-label">Primer Apellido *</label>
+                                <input type="text" class="form-control" id="firstSurname" name="firstSurname" required>
                             </div>
                             <div class="col-lg-6 col-12 mb-4">
                                 <label for="apellido2" class="form-label">Segundo Apellido</label>
@@ -41,8 +41,8 @@
                         <!-- Nombre y tipo de documento -->
                         <div class="row">
                             <div class="col-lg-6 col-12 mb-4">
-                                <label for="nombre" class="form-label">Nombre *</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                <label for="name" class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
                             </div>
                             <div class="col-lg-6 col-12 mb-4">
                                 <x-select id="tipo_documento" name="tipo_documento" label="Tipo de Documento"
@@ -53,8 +53,8 @@
                         <!-- Documento y sexo -->
                         <div class="row">
                             <div class="col-lg-6 col-12 mb-4">
-                                <label for="documento" class="form-label">Nº de Documento *</label>
-                                <input type="text" class="form-control" id="documento" name="documento" required>
+                                <label for="nif" class="form-label">Nº de Documento *</label>
+                                <input type="text" class="form-control" id="nif" name="nif" required>
                             </div>
                             <div class="col-lg-6 col-12 mb-4">
                                 <x-select name="sexo" label="Género" :options="array_combine(config('options.sexo'), config('options.sexo'))" required />
