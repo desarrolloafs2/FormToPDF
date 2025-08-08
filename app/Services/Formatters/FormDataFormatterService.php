@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Formatters;
 
 use Carbon\Carbon;
+use App\Services\Contracts\PdfFormFormatterInterface;
 
-class FormDataFormatterService
+
+class FormDataFormatterService implements PdfFormFormatterInterface
 {
-    public static function format(array $participant, ?array $companyInfo): array
+    public function format(array $participant, ?array $companyInfo = null): array
     {
         $data = [];
 

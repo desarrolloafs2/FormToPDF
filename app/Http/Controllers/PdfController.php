@@ -2,37 +2,46 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreParticipantRequest;
 use App\Services\CompanyService;
-use App\Services\FormDataFormatterService;
 use App\Services\ImageManagerService;
 use App\Services\PdfGeneratorService;
 use App\Services\SharepointUploaderService;
+use App\Services\Contracts\PdfFormFormatterInterface;
+
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\App;
+
 
 class PdfController extends Controller
 {
-    public function generate(StoreParticipantRequest $request, string $type): RedirectResponse
+    public function generate(FormRequest $request, PdfFormFormatterInterface $formatter, string $type): RedirectResponse
     {
+
         // Validamos que el tipo esté registrado en el config/pdf.php
         if (!array_key_exists($type, config('pdf.types'))) {
             abort(404, 'Tipo de formulario no válido');
         }
+        $formRequestClass = config("forms.types.$type.request");
 
         // Creamos manualmente el servicio con el tipo
         $pdfService = new PdfGeneratorService($type);
 
+        // Crea la instancia del FormRequest y ejecuta la validación
+        $request = App::make($formRequestClass);
+        $request->setContainer(app())->setRedirector(app('redirect'));
+        $request->validateResolved();
         // Validación y recopilación de datos
         $participant = $request->validated();
-        $companyInfo = null;
 
+        $companyInfo = null;
         if (!empty($participant['cif']) && !empty($participant['company'])) {
             $companyInfo = CompanyService::getCompanyInfo($participant['cif'], $participant['company']);
         }
 
-        $formData = FormDataFormatterService::format($participant, $companyInfo);
-        $generatedPdfName = $pdfService->generateFilledPdf($formData, $type);
+        $formData = $formatter->format($participant, $companyInfo);
+        $generatedPdfName = $pdfService->generateFilledPdf($formData);
 
         if (!$generatedPdfName) {
             Log::error('Error al generar el PDF relleno', [

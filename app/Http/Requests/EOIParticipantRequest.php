@@ -54,11 +54,13 @@ class EoiParticipantRequest extends FormRequest
             // Firma y lugar
             'lugar' => ['nullable', 'string', 'max:100'],
             'fecha' => ['nullable', 'date'],
-            'firma' => ['nullable', 'string', 'max:150'],
+            // 'firma' => ['nullable', 'string', 'max:150'],
 
-            'dni_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'dni_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'contrato_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'declaracion_responsable' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'signature' => ['required']
+
 
         ];
     }

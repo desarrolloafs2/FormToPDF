@@ -168,6 +168,10 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\FormRequestResolverServiceProvider::class,
+        App\Providers\FormRequestBindingServiceProvider::class,
+        App\Providers\FormFormatterBindingServiceProvider::class,
+
     ])->toArray(),
 
     /*

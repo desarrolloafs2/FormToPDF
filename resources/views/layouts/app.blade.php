@@ -26,7 +26,8 @@
     {{-- JS (footer) --}}
     <script src="{{ asset('js/choices.min.js') }}"></script>
     <script src="{{ asset('js/justValidate.min.js') }}"></script>
-    <script src="{{ asset(path: 'js/main.js') }}"></script>
+    <script src="{{ asset('js/form-utils.js') }}"></script>
+    {{-- <script src="{{ asset(path: 'js/main.js') }}"></script> --}}
 
     @stack('scripts')
 </body>

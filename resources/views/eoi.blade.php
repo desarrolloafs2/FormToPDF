@@ -45,16 +45,9 @@
                                 <input type="text" class="form-control" id="nombre" name="nombre" required>
                             </div>
                             <div class="col-lg-6 col-12 mb-4">
-                                <label for="tipo_documento" class="form-label">Tipo de Documento *</label>
-                                <select class="form-select" id="tipo_documento" name="tipo_documento" required>
-                                    <option value="">Selecciona</option>
-                                    <option value="DNI">DNI</option>
-                                    <option value="NIE">NIE</option>
-                                    <option value="PASAPORTE">Pasaporte</option>
-                                </select>
+                                <x-select id="tipo_documento" name="tipo_documento" label="Tipo de Documento" :options="array_combine(config('options.dni'), config('options.dni'))" required />
                             </div>
                         </div>
-
 
                         <!-- Documento y sexo -->
                         <div class="row">
@@ -63,13 +56,8 @@
                                 <input type="text" class="form-control" id="documento" name="documento" required>
                             </div>
                             <div class="col-lg-6 col-12 mb-4">
-                                <label for="sexo" class="form-label">Sexo</label>
-                                <select class="form-select" id="sexo" name="sexo">
-                                    <option value="">Selecciona</option>
-                                    <option value="Hombre">Hombre</option>
-                                    <option value="Mujer">Mujer</option>
-                                    <option value="Otro">Otro</option>
-                                </select>
+                                <x-select name="sexo" label="Género" :options="array_combine(config('options.sexo'), config('options.sexo'))" required />
+                            </div>
                             </div>
                         </div>
 
@@ -95,13 +83,13 @@
                                 <label for="codigo_postal" class="form-label">Código Postal</label>
                                 <input type="text" class="form-control" id="codigo_postal" name="codigo_postal">
                             </div>
+
                             <div class="col-md-3 mb-4">
-                                <label for="provincia" class="form-label">Provincia</label>
-                                <input type="text" class="form-control" id="provincia" name="provincia">
+                                <x-select id="province" name="province" label="Provincia*" :options="array_combine(config('options.provincias'), config('options.provincias'))" />
                             </div>
+
                             <div class="col-md-3 mb-4">
-                                <label for="ccaa" class="form-label">CCAA</label>
-                                <input type="text" class="form-control" id="ccaa" name="ccaa">
+                                <x-select name="ccaa" label="Comunidad Autónoma" :options="array_combine(config('options.ccaa'), config('options.ccaa'))" required />
                             </div>
                         </div>
 
@@ -157,10 +145,16 @@
                             <label for="nivel_estudios" class="form-label">Nivel de Estudios Finalizados</label>
                             <select class="form-select" id="nivel_estudios" name="nivel_estudios">
                                 <option value="">Selecciona</option>
-                                <option value="CINE 5 a 8">CINE 5 a 8: Enseñanza Superior, Universidad, FP Grado Superior
                                 </option>
-                                <option value="CINE 3 a 4">CINE 3 a 4: Bachillerato, FP Grado Medio</option>
-                                <option value="CINE 1 a 2">CINE 1 a 2: Educación Primaria / Secundaria</option>
+                                <option value="CINE 1">CINE 1: Educación Primaria</option>
+                                <option value="CINE 2">CINE 2: Primer Ciclo de Enseñanza Secundaria. (Incluye: 1º Ciclo de
+                                    ESO y certificados profesionalidad 1 y 2 )</option>
+                                <option value="CINE 3">CINE 3: Segundo Ciclo de enseñanza secundaria. (Incluye: FP Básica,
+                                    FP Grado Medio, Bachillerato)</option>
+                                <option value="CINE 4">CINE 4: Enseñanza Postsecundaria no Terciaria. Incluye certificado
+                                    de profesionalidad 3</option>
+                                <option value="CINE 5 a 8">CINE 5 a 8: Enseñanza Superior, Universidad, FP Grado Superior
+                                <option value="otros">Otros</option>
                             </select>
                         </div>
 
@@ -222,9 +216,9 @@
                                 <label for="tamano_empresa" class="form-label">Tamaño de la Empresa *</label>
                                 <select class="form-select" id="tamano_empresa" name="tamano_empresa" required>
                                     <option value="">Selecciona</option>
-                                    <option value="Menos de 10 trabajadores">Menos de 10 trabajadores</option>
-                                    <option value="10 - 49 trabajadores">10 - 49 trabajadores</option>
-                                    <option value="50 - 249 trabajadores">50 - 249 trabajadores</option>
+                                    <option value="-10">Menos de 10 trabajadores</option>
+                                    <option value="10 - 49">10 - 49 trabajadores</option>
+                                    <option value="50 - 249">50 - 249 trabajadores</option>
                                 </select>
                             </div>
                         </div>
@@ -246,19 +240,20 @@
                                 <label for="antiguedad_empresa" class="form-label">Antigüedad de la Empresa</label>
                                 <select class="form-select" id="antiguedad_empresa" name="antiguedad_empresa">
                                     <option value="">Selecciona</option>
-                                    <option value="Menos de 1 año">Menos de 1 año</option>
-                                    <option value="1 a 3 años">1 a 3 años</option>
-                                    <option value="Últimos 5 años">Últimos 5 años</option>
-                                    <option value="Más de 5 años">Más de 5 años</option>
+                                    <option value="5">Últimos 5 años</option>
+                                    <option value="5-10">De 5 a 10 años</option>
+                                    <option value="+10">Más de 10 años</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-4">
                                 <label for="facturacion" class="form-label">Facturación Último Año</label>
                                 <select class="form-select" id="facturacion" name="facturacion">
                                     <option value="">Selecciona</option>
-                                    <option value="De 0 a 500.000€">- De 0 a 500.000€</option>
-                                    <option value="De 500.001€ a 2.000.000€">De 500.001€ a 2.000.000€</option>
-                                    <option value="Más de 2.000.000€">Más de 2.000.000€</option>
+                                    <option value="De 0 a 500K">- De 0 a 500.000€</option>
+                                    <option value="500K-1M">De 500.000€ a 1M€</option>
+                                    <option value="1M-2M">De 1M€ a 2M€</option>
+                                    <option value="2M-4M">De 2M€ a 4M€</option>
+                                    <option value="+4M">Más de 4M€</option>
                                 </select>
                             </div>
                         </div>
@@ -328,9 +323,9 @@
                                 con la empresa</label>
                             <select class="form-select" id="porcentaje_mujeres" name="porcentaje_mujeres">
                                 <option value="">Selecciona</option>
-                                <option value="Menos del 30%">Menos del 30%</option>
-                                <option value="entre 30% y 50%">entre 30% y 50%</option>
-                                <option value="Más del 50%">Más del 50%</option>
+                                <option value="-30%">Menos del 30%</option>
+                                <option value="30%-50%">entre 30% y 50%</option>
+                                <option value="+50%">Más del 50%</option>
                             </select>
                         </div>
 
@@ -346,10 +341,8 @@
 
                         <div class="mb-4">
                             <label for="contrato_file" class="form-label">Certificado de Vida laboral</label>
-                            <input class="form-control" type="file" id="laboral_file" name="laboral_file">
+                            <input class="form-control" type="file" id="contrato_file" name="contrato_file">
                         </div>
-
-
 
                         <!-- Declaraciones y Consentimientos -->
                         <h2 class="text-center mb-5">Declaraciones y Consentimientos</h2>
@@ -456,3 +449,6 @@
         </div> <!-- /.container-fluid -->
     </form>
 @endsection
+@push('scripts')
+    <script src="{{ asset('js/eoi-form.js') }}"></script>
+@endpush
