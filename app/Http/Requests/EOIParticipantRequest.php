@@ -27,19 +27,31 @@ class EoiParticipantRequest extends FormRequest
             'codigo_postal' => ['nullable', 'string', 'max:10'],
             'provincia' => ['nullable', 'string', 'max:100'],
             'ccaa' => ['nullable', 'string', 'max:100'],
-            'telefono' => ['required', 'string', 'max:20'],
+            'telefono' => ['required'],
             'email' => ['required', 'email', 'max:150'],
 
             // Datos profesionales
             'empresa' => ['required', 'string', 'max:255'],
             'nif_empresa' => ['required', 'string', 'max:20'],
+            'actividad_empresa' => ['nullable', 'string', 'max:255'],
+            'tamano_empresa' => ['nullable', 'string', 'max:100'],
+            'province' => ['nullable', 'string', 'max:100'], // o cambiarlo a 'provincia_empresa'
+            'ccaa_empresa' => ['nullable', 'string', 'max:100'],
+            'antiguedad_empresa' => ['nullable', 'string', 'max:50'],
+            'facturacion' => ['nullable', 'string', 'max:100'],
+            'ambito_rural' => ['nullable', 'in:1,2'],
+            'politicas_sostenibilidad' => ['nullable', 'in:1,2'],
+            'transformacion_digital' => ['nullable', 'in:1,2'],
+            'mujer_responsable' => ['nullable', 'in:1,2'],
+            'porcentaje_mujeres' => ['nullable'],
+
 
             // Nuevos campos adicionales
-            'reside_en_localidad_menor_5000' => ['required', 'in:Sí,No'],
-            'discapacidad' => ['nullable', 'in:Sí,No'],
-            'nivel_estudios' => ['required', 'in:CINE 5 a 8,CINE 3 a 4,CINE 1 a 2'],
+            'reside_en_localidad_menor_5000' => ['required',],
+            'discapacidad' => ['nullable'],
+            'nivel_estudios' => ['required'],
             'titulacion' => ['nullable', 'string', 'max:150'],
-            'situacion_actual' => ['required', 'in:Directivo en una pyme,Trabajador en una pyme'],
+            'situacion_actual' => ['required'],
 
             // Declaraciones
             'trabaja_en_pyme' => ['accepted'],

@@ -61,13 +61,15 @@ class PdfController extends Controller
             return $this->errorRedirect();
         }
 
+        $coords = config("pdf.types.$type.signature_coords");
+
         $signedPdfName = $pdfService->addSignatureToPdf(
             $generatedPdfName,
             $signatureImageName,
-            70, // x
-            150, // y
-            90, // width
-            3 // page
+            $coords['x'],
+            $coords['y'],
+            $coords['width'],
+            $coords['page']
         );
 
         if (!$signedPdfName) {
