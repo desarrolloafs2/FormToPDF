@@ -338,7 +338,7 @@
                     <h2 class="text-center mb-5">Documentación Adjunta</h2>
                     <p>* Adjuntar documentación según se indique en las instrucciones de inscripción.</p>
 
-                    <div class="mb-4">
+                    {{-- <div class="mb-4">
                         <label for="dni_file" class="form-label">Copia del DNI/NIE/Pasaporte/Permiso de Residencia
                             *</label>
                         <input class="form-control" type="file" id="dni_file" name="dni_file" required>
@@ -347,7 +347,7 @@
                     <div class="mb-4">
                         <label for="contrato_file" class="form-label">Certificado de Vida laboral</label>
                         <input class="form-control" type="file" id="contrato_file" name="contrato_file">
-                    </div>
+                    </div> --}}
 
                     <!-- Declaraciones y Consentimientos -->
                     <h2 class="text-center mb-5">Declaraciones y Consentimientos</h2>

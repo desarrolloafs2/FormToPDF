@@ -29,20 +29,20 @@ document.addEventListener('DOMContentLoaded', function () {
         return window.matchMedia("(orientation: portrait)").matches;
     }
 
-    function resizeCanvas() {
-        canvas.width = canvas.offsetWidth * ratio;
+    // function resizeCanvas() {
+    //     canvas.width = canvas.offsetWidth * ratio;
 
-        if(isPortrait()) canvas.height = (canvas.offsetWidth * ratio)*.6;
-        else canvas.height = (canvas.offsetWidth * ratio)*.4;
+    //     if(isPortrait()) canvas.height = (canvas.offsetWidth * ratio)*.6;
+    //     else canvas.height = (canvas.offsetWidth * ratio)*.4;
 
-        canvas.getContext("2d").scale(ratio, ratio);
-    }
+    //     canvas.getContext("2d").scale(ratio, ratio);
+    // }
 
-    resizeCanvas();
+    // resizeCanvas();
 
     const signaturePad = new SignaturePad(canvas);
 
-    window.addEventListener("resize", resizeCanvas);
+    // window.addEventListener("resize", resizeCanvas);
 
     document.getElementById("clearCanvas").addEventListener("click", () => {
         signaturePad.clear();

@@ -1,5 +1,7 @@
 <?php
 
+use App\Services\Formatters\MecFormDataFormatterService;
+
 return [
     'types' => [
         'sepe' => [
@@ -9,6 +11,10 @@ return [
         'eoi' => [
             'request' => \App\Http\Requests\EoiParticipantRequest::class,
              'formatter' => \App\Services\Formatters\EoiFormDataFormatterService::class,
+        ],
+        'mec' => [
+            'request' => \App\Http\Requests\MecParticipantRequest::class,
+            'formatter' =>MecFormDataFormatterService::class,
         ],
     ],
 ];

@@ -113,4 +113,52 @@ return [
         'Mujer',
         'Otro'
     ],
+
+    'idiomas' => [
+        'Inglés',
+        'Francés',
+        'Otro idioma'
+    ],
+
+    'niveles_oficiales' => [
+        'A1',
+        'A2',
+        'B1',
+        'B2',
+        'C1',
+        'C2'
+    ],
+
+    'niveles_no_oficiales' => [
+        'Básico',
+        'Medio',
+        'Avanzado'
+    ],
+    'situacion_laboral' => [
+        'desempleado' => 'Trabajador/a desempleado/a',
+        'ocupado' => 'Trabajador/a ocupado/a',
+    ],
+
+    // Categorías (checkboxes)
+    'categorias' => [
+        'categoria_direccion' => 'Dirección',
+        'categoria_administracion' => 'Administración',
+        'categoria_comercial' => 'Comercial',
+        'categoria_mantenimiento' => 'Mantenimiento',
+        'categoria_produccion' => 'Producción',
+        'categoria_mando_intermedio' => 'Mando Intermedio',
+        'categoria_tecnico' => 'Técnico/a',
+        'trabajador_cualificado' => 'Trabajador/a cualificado/a',
+        'trabajador_no_cualificado' => 'Trabajador/a de baja cualificación',
+    ],
+
+    // Situación desempleado (checkboxes)
+    'situacion_desempleado' => [
+        'demandante_empleo1' => 'Demandantes de primer empleo',
+        'no_prestacion' => 'En paro sin prestación o subsidio',
+        'subsidio_desempleo' => 'Percibe subsidio por desempleo',
+        'prestacion_desempleo' => 'Percibe prestación por desempleo',
+        'otros' => 'Otros no parados/as',
+    ],
+
 ];

@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Services\Formatters;
+
+use Carbon\Carbon;
+use App\Services\Contracts\PdfFormFormatterInterface;
+use Log;
+
+class MecFormDataFormatterService implements PdfFormFormatterInterface
+{
+    public function format(array $participant, ?array $companyInfo = null): array
+    {
+        $data = [];
+
+        // Concatenar nombre completo
+        $nombreCompleto = trim(
+            ($participant['name'] ?? '') . ' ' .
+            ($participant['firstSurname'] ?? '') . ' ' .
+            ($participant['apellido2'] ?? '')
+        );
+
+        // Campo único en el PDF
+         $data['nombre_completo'] = $nombreCompleto;
+
+        // $data['nif'] = $participant['nif'] ?? '';
+
+        // $data['birthdate'] = !empty($participant['fecha_nacimiento'])
+        //     ? Carbon::parse($participant['fecha_nacimiento'])->format('d/m/Y')
+        //     : '';
+
+        // $data['direccion'] = $participant['direccion'] ?? '';
+        // $data['localidad'] = $participant['localidad'] ?? '';
+        // $data['CP'] = $participant['codigo_postal'] ?? '';
+        // $data['provincia'] = $participant['provincia'] ?? '';
+        // $data['telefono_movil'] = $participant['telefono'] ?? '';
+        // $data['telefono_fijo'] = $participant['telefono_fijo'] ?? '';
+        // $data['email'] = $participant['email'] ?? '';
+        // $data['carnet'] = ($participant['carnet'] ?? '') === 'si' ? 'Sí' : 'No';
+        // $data['carnet_tipos'] = $participant['carnet_tipos'] ?? '';
+
+
+        return $data;
+    }
+
+    private function isChecked(array $data, string $field, string $expected = 'Sí'): string
+    {
+        return ($data[$field] ?? '') === $expected ? 'Sí' : '';
+    }
+
+}

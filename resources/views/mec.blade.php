@@ -1,71 +1,761 @@
 @extends('layouts.app')
 
-@section('title', 'Solicitud de Participación')
+@section('title', 'Formulario de Participación')
 
 @section('content')
-    <h1 class="text-center mb-4">Solicitud de participación para acciones formativas</h1>
+    <h1 class="text-center mb-4">Formulario de Inscripción</h1>
 
-    <form method="POST" action="{{ route('solicitud.store') }}">
+    <form id="{{ $type }}" class="my-5" method="POST" action="{{ url($type) }}" enctype="multipart/form-data">
         @csrf
+        <div class="container-fluid">
 
-        <div class="card p-4 mb-4">
-            <h3>Datos de la Persona Solicitante</h3>
+            {{-- Bloque Datos Personales --}}
             <div class="row">
-                <x-input label="NIF/NIE" name="dni" required class="col-md-4" />
-                <x-input label="Nombre y Apellidos" name="nombre_apellidos" required class="col-md-8" />
-                <x-input label="Dirección" name="direccion" class="col-md-6" />
-                <x-input label="Código Postal" name="cp" class="col-md-2" />
-                <x-input label="Localidad" name="localidad" class="col-md-4" />
-                <x-select label="Provincia" name="provincia" :options="$provincias" class="col-md-6" />
-                <x-input label="Fecha de Nacimiento" name="fecha_nacimiento" type="date" class="col-md-6" />
-                <x-radio-group label="Sexo" name="sexo" :options="['Hombre', 'Mujer']" />
-                <x-input label="Teléfono Móvil" name="telefono_movil" class="col-md-6" />
-                <x-input label="Teléfono Fijo" name="telefono_fijo" class="col-md-6" />
-                <x-input label="Correo electrónico" name="email" class="col-md-12" />
-                <x-checkbox name="tiene_carnet" label="¿Tienes Carnet de Conducir?" />
-                <x-input label="Carnets" name="carnets" class="col-md-12" />
-            </div>
-        </div>
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <h2 class="text-center mb-5">Datos Personales</h2>
 
-        <div class="card p-4 mb-4">
-            <h3>Datos del Representante</h3>
+                    @if ($errors->any())
+                        <div class="alert alert-danger" role="alert">
+                            <h5 class="alert-heading">¡Oops! Ha habido un error:</h5>
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    {{-- Campos Datos Personales --}}
+                    <div class="container-fluid">
+                        {{-- Apellidos --}}
+                        <div class="row">
+                            <div class="col-lg-6 col-12 mb-4">
+                                <label for="firstSurname" class="form-label">Primer Apellido *</label>
+                                <input type="text" class="form-control" id="firstSurname" name="firstSurname" required>
+                            </div>
+                            <div class="col-lg-6 col-12 mb-4">
+                                <label for="apellido2" class="form-label">Segundo Apellido</label>
+                                <input type="text" class="form-control" id="apellido2" name="apellido2">
+                            </div>
+                        </div>
+
+                        {{-- Nombre y género --}}
+                        <div class="row">
+                            <div class="col-lg-6 col-12 mb-4">
+                                <label for="name" class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-lg-6 col-12 mb-4">
+                                <x-select name="sexo" label="Género" :options="array_combine(config('options.sexo'), config('options.sexo'))" required />
+                            </div>
+
+                        </div>
+
+                        {{-- Documento y tipo --}}
+                        <div class="row">
+                            <div class="col-lg-6 col-12 mb-4">
+                                <x-select id="tipo_documento" name="tipo_documento" label="Tipo de Documento"
+                                    :options="array_combine(config('options.dni'), config('options.dni'))" required />
+                            </div>
+                            <div class="col-lg-6 col-12 mb-4">
+                                <label for="nif" class="form-label">Nº de Documento *</label>
+                                <input type="text" class="form-control" id="nif" name="nif" required>
+                            </div>
+
+                        </div>
+
+                        {{-- Fecha y dirección --}}
+                        <div class="row">
+                            <div class="col-lg-4 col-12 mb-4">
+                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento">
+                            </div>
+                            <div class="col-lg-8 col-12 mb-4">
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="direccion" name="direccion">
+                            </div>
+                        </div>
+
+                        {{-- Ciudad, CP, provincia --}}
+                        <div class="row">
+                            <div class="col-md-4 mb-4">
+                                <label for="localidad" class="form-label">Localidad</label>
+                                <input type="text" class="form-control" id="localidad" name="localidad">
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <label for="codigo_postal" class="form-label">Código Postal</label>
+                                <input type="text" class="form-control" id="codigo_postal" name="codigo_postal">
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <x-select id="provincia" name="provincia" label="Provincia*" :options="array_combine(config('options.provincias'), config('options.provincias'))" />
+                            </div>
+                        </div>
+
+                        {{-- Contacto --}}
+                        <div class="row">
+                            <div class="col-md-3 mb-4">
+                                <label for="telefono_movil" class="form-label">Teléfono Móvil *</label>
+                                <input type="text" class="form-control" id="telefono_movil" name="telefono" required>
+                            </div>
+                            <div class="col-md-3 mb-4">
+                                <label for="telefono_fijo" class="form-label">Teléfono Fijo</label>
+                                <input type="text" class="form-control" id="telefono_fijo" name="telefono_fijo">
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="email" class="form-label">Correo Electrónico *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+
+                        {{-- Otros datos --}}
+                        <div class="row">
+                            <div class="col-lg-6 col-12 mb-3">
+                                <label class="form-label d-block">¿Dispone de Carnet?</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="carnet" id="carnet_si"
+                                        value="si">
+                                    <label class="form-check-label" for="carnet_si">Sí</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="carnet" id="carnet_no"
+                                        value="no">
+                                    <label class="form-check-label" for="carnet_no">No</label>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-12 mb-4">
+                                <label for="carnet_tipos" class="form-label">Tipos de Carnet</label>
+                                <input type="text" class="form-control" id="carnet_tipos" name="carnet_tipos">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bloque Datos del Representante --}}
             <div class="row">
-                <x-input label="NIF/NIE" name="dni_representante" class="col-md-4" />
-                <x-input label="Nombre" name="nombre_representante" class="col-md-8" />
-                <x-radio-group label="Sexo" name="sexo_representante" :options="['Hombre', 'Mujer']" />
-                <x-input label="1er Apellido" name="apellido1_representante" class="col-md-6" />
-                <x-input label="2º Apellido" name="apellido2_representante" class="col-md-6" />
-                <x-input label="Domicilio" name="domicilio_representante" class="col-md-12" />
-                <x-input label="Provincia" name="provincia_representante" class="col-md-4" />
-                <x-input label="C.P." name="cp_representante" class="col-md-4" />
-                <x-input label="Población" name="poblacion_representante" class="col-md-4" />
-                <x-input label="Teléfono" name="telefono_representante" class="col-md-6" />
-                <x-input label="Teléfono Móvil" name="movil_representante" class="col-md-6" />
-                <x-input label="Correo Electrónico" name="email_representante" class="col-md-12" />
-                <x-input label="Horario preferente para recibir llamada" name="horario_llamada" class="col-md-12" />
-            </div>
-        </div>
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <h2 class="text-center mb-5">Datos del Representante (Opcional)</h2>
 
-        <div class="card p-4 mb-4">
-            <h3>Situación Laboral</h3>
-            <x-radio-group name="situacion_laboral" :options="['Trabajador/a desempleado/a', 'Trabajador/a ocupado/a']" />
+                    {{-- Campos del Representante --}}
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="firstSurname_rep" class="form-label">Primer Apellido </label>
+                            <input type="text" class="form-control" id="firstSurname_rep" name="firstSurname_rep">
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="apellido2_rep" class="form-label">Segundo Apellido</label>
+                            <input type="text" class="form-control" id="apellido2_rep" name="apellido2_rep">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="name_rep" class="form-label">Nombre </label>
+                            <input type="text" class="form-control" id="name_rep" name="name_rep">
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <x-select id="tipo_documento_rep" name="tipo_documento_rep" label="Tipo de Documento"
+                                :options="array_combine(config('options.dni'), config('options.dni'))" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="nif_rep" class="form-label">Nº de Documento </label>
+                            <input type="text" class="form-control" id="nif_rep" name="nif_rep">
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <x-select name="sexo_rep" label="Género" :options="array_combine(config('options.sexo'), config('options.sexo'))" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8 mb-4">
+                            <label for="direccion_rep" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="direccion_rep" name="direccion_rep">
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <label for="poblacion_rep" class="form-label">Población</label>
+                            <input type="text" class="form-control" id="poblacion_rep" name="poblacion_rep">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-4">
+                            <label for="CP_rep" class="form-label">Código Postal</label>
+                            <input type="text" class="form-control" id="CP_rep" name="CP_rep">
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <x-select id="provincia_rep" name="provincia_rep" label="Provincia*" :options="array_combine(config('options.provincias'), config('options.provincias'))" />
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="email_rep" class="form-label">Correo Electrónico </label>
+                            <input type="email" class="form-control" id="email_rep" name="email_rep">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-4">
+                            <label for="telefono_movil_rep" class="form-label">Teléfono Móvil </label>
+                            <input type="text" class="form-control" id="telefono_movil_rep"
+                                name="telefono_movil_rep">
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <label for="telefono_fijo_rep" class="form-label">Teléfono Fijo</label>
+                            <input type="text" class="form-control" id="telefono_fijo_rep" name="telefono_fijo_rep">
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label for="horario_llamadas" class="form-label">Horario para Contactar</label>
+                            <input type="text" class="form-control" id="horario_llamadas" name="horario_llamadas">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bloque Situación Laboral --}}
             <div class="row">
-                <x-input label="Oficina de empleo" name="oficina_empleo" class="col-md-6" />
-                <x-input label="Fecha de inscripción" name="fecha_inscripcion" type="date" class="col-md-6" />
-                <x-checkbox-group label="Situación desempleado/a" name="situacion_desempleado[]" :options="[
-                    'Demandantes de primer empleo',
-                    'En paro sin prestación o subsidio',
-                    'Percibe subsidio por desempleo',
-                    'Percibe prestación por desempleo',
-                    'Otros no parados/as',
-                ]" />
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <h3 class="text-center mb-5">Situación Laboral</h3>
+
+                    {{-- Radio buttons Situación Laboral --}}
+                    @foreach (config('options.situacion_laboral') as $value => $label)
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="situacion_laboral"
+                                id="situacion_{{ $value }}" value="{{ $value }}">
+                            <label class="form-check-label fw-bold"
+                                for="situacion_{{ $value }}">{{ $label }}</label>
+                        </div>
+
+                        @if ($value === 'desempleado')
+                            <div id="situacion_desempleado_group" style="display:none;" class="mt-3">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="oficina_empleo" class="form-label">Oficina de empleo</label>
+                                        <input type="text" class="form-control" id="oficina_empleo"
+                                            name="oficina_empleo" disabled>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="fecha_inscripcion" class="form-label">Fecha de inscripción</label>
+                                        <input type="date" class="form-control" id="fecha_inscripcion"
+                                            name="fecha_inscripcion" disabled>
+                                    </div>
+                                </div>
+
+                                <label class="form-label">Situación persona desempleada</label>
+                                @foreach (config('options.situacion_desempleado') as $key => $desc)
+                                    <div class="form-check">
+                                        <input class="form-check-input desempleado-checkbox" type="checkbox"
+                                            id="{{ $key }}" name="{{ $key }}" disabled>
+                                        <label class="form-check-label"
+                                            for="{{ $key }}">{{ $desc }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if ($value === 'ocupado')
+                            <div id="situacion_ocupado_group" style="display:none;" class="mt-3">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="sector" class="form-label">Sector/Comercio</label>
+                                        <input type="text" class="form-control" id="sector" name="sector"
+                                            disabled>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cif" class="form-label">CIF</label>
+                                        <input type="text" class="form-control" id="cif" name="cif"
+                                            disabled>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="razon_social" class="form-label">Razón Social</label>
+                                    <input type="text" class="form-control" id="razon_social" name="razon_social"
+                                        disabled>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="domicilio_trabajo" class="form-label">Domicilio Centro Trabajo</label>
+                                    <input type="text" class="form-control" id="domicilio_trabajo"
+                                        name="domicilio_trabajo" disabled>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="localidad_trabajo" class="form-label">Localidad</label>
+                                        <input type="text" class="form-control" id="localidad_trabajo"
+                                            name="localidad_trabajo" disabled>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cp_trabajo" class="form-label">C.P.</label>
+                                        <input type="text" class="form-control" id="cp_trabajo" name="cp_trabajo"
+                                            disabled>
+                                    </div>
+                                </div>
+
+                                <label class="form-label d-block mt-3">Categoría</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        @foreach (array_slice(config('options.categorias'), 0, 4, true) as $key => $desc)
+                                            <div class="form-check">
+                                                <input class="form-check-input ocupado-checkbox" type="checkbox"
+                                                    id="{{ $key }}" name="{{ $key }}" disabled>
+                                                <label class="form-check-label"
+                                                    for="{{ $key }}">{{ $desc }}</label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="col-md-6">
+                                        @foreach (array_slice(config('options.categorias'), 4, null, true) as $key => $desc)
+                                            <div class="form-check">
+                                                <input class="form-check-input ocupado-checkbox" type="checkbox"
+                                                    id="{{ $key }}" name="{{ $key }}" disabled>
+                                                <label class="form-check-label"
+                                                    for="{{ $key }}">{{ $desc }}</label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <label for="regimen_cotizacion" class="form-label">Régimen de cotización</label>
+                                    <input type="text" class="form-control" id="regimen_cotizacion"
+                                        name="regimen_cotizacion" placeholder="Ej.: RG, FD, RE, etc." disabled>
+                                </div>
+                            </div>
+                        @endif
+
+                        <hr>
+                    @endforeach
+                </div>
             </div>
-        </div>
 
-        <!-- Puedes seguir con más bloques: académicos, idiomas, formación, etc. -->
+            {{-- Bloque Datos Académicos --}}
+            <div class="row">
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <h3 class="text-center mb-5">Datos Académicos</h3>
 
-        <div class="text-center mt-4">
-            <button type="submit" class="btn btn-primary px-5 py-2">Enviar Solicitud</button>
+                    <label class="form-label">Nivel Académico</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="sin_estudios" name="sin_estudios">
+                                <label class="form-check-label" for="sin_estudios">Sin estudios</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="estudios_primarios"
+                                    name="estudios_primarios">
+                                <label class="form-check-label" for="estudios_primarios">Estudios primarios</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="certificado_escolaridad"
+                                    name="certificado_escolaridad">
+                                <label class="form-check-label" for="certificado_escolaridad">Certificado de
+                                    escolaridad</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="graduado_escolar"
+                                    name="graduado_escolar">
+                                <label class="form-check-label" for="graduado_escolar">Graduado escolar</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="eso" name="eso">
+                                <label class="form-check-label" for="eso">ESO</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="fp1" name="fp1">
+                                <label class="form-check-label" for="fp1">FP I</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ciclo_grado_medio"
+                                    name="ciclo_grado_medio">
+                                <label class="form-check-label" for="ciclo_grado_medio">Ciclo Grado Medio</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bup_1_2" name="bup_1_2">
+                                <label class="form-check-label" for="bup_1_2">BUP (1º y 2º curso)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bup_1_2_3" name="bup_1_2_3">
+                                <label class="form-check-label" for="bup_1_2_3">BUP (1º, 2º y 3º curso)</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="fp2" name="fp2">
+                                <label class="form-check-label" for="fp2">FP II</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ciclo_grado_superior"
+                                    name="ciclo_grado_superior">
+                                <label class="form-check-label" for="ciclo_grado_superior">Ciclo Grado Superior</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="cou" name="cou">
+                                <label class="form-check-label" for="cou">COU</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bachiller" name="bachiller">
+                                <label class="form-check-label" for="bachiller">Bachiller</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="diplomatura" name="diplomatura">
+                                <label class="form-check-label" for="diplomatura">Diplomatura</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="licenciatura" name="licenciatura">
+                                <label class="form-check-label" for="licenciatura">Licenciatura</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="grado" name="grado">
+                                <label class="form-check-label" for="grado">Grado</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="doctorado" name="doctorado">
+                                <label class="form-check-label" for="doctorado">Doctorado</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="certificado_profesional_n1"
+                                    name="certificado_profesional_n1">
+                                <label class="form-check-label" for="certificado_profesional_n1">Certificado profesional
+                                    Nivel 1</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="certificado_profesional_n2"
+                                    name="certificado_profesional_n2">
+                                <label class="form-check-label" for="certificado_profesional_n2">Certificado profesional
+                                    Nivel 2</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="certificado_profesional_n3"
+                                    name="certificado_profesional_n3">
+                                <label class="form-check-label" for="certificado_profesional_n3">Certificado profesional
+                                    Nivel 3</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="otros" name="otros">
+                                <label class="form-check-label" for="otros">Otros</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label for="especialidad" class="form-label">Especialidad</label>
+                        <input type="text" class="form-control" id="especialidad" name="especialidad">
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bloque Idiomas --}}
+            <div class="row">
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <h3 class="text-center mb-5">Idiomas</h3>
+
+                    @foreach (config('options.idiomas') as $index => $idioma)
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ $idioma }}</label>
+
+                            {{-- Checkbox Con Titulación Oficial --}}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="{{ strtolower($idioma) }}"
+                                    name="{{ strtoupper($idioma) }}">
+                                <label class="form-check-label" for="{{ strtolower($idioma) }}">Con Titulación
+                                    Oficial</label>
+                            </div>
+
+                            {{-- Niveles oficiales --}}
+                            <div class="ms-3">
+                                @foreach (config('options.niveles_oficiales') as $nivel)
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox"
+                                            id="{{ strtolower($idioma) . '_' . strtolower($nivel) }}"
+                                            name="{{ $nivel }}{{ $index + 1 }}">
+                                        <label class="form-check-label"
+                                            for="{{ strtolower($idioma) . '_' . strtolower($nivel) }}">{{ $nivel }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            {{-- Checkbox Sin Titulación Oficial --}}
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox"
+                                    id="{{ strtolower($idioma) }}_sin_titulacion" name="BÁSICO_{{ $index + 1 }}">
+                                <label class="form-check-label" for="{{ strtolower($idioma) }}_sin_titulacion">Sin
+                                    Titulación Oficial</label>
+                            </div>
+
+                            {{-- Niveles no oficiales --}}
+                            <div class="ms-3">
+                                @foreach (config('options.niveles_no_oficiales') as $nivel_no_oficial)
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox"
+                                            id="{{ strtolower($idioma) . '_' . strtolower($nivel_no_oficial) }}"
+                                            name="{{ strtoupper($nivel_no_oficial) }}_{{ $index + 1 }}">
+                                        <label class="form-check-label"
+                                            for="{{ strtolower($idioma) . '_' . strtolower($nivel_no_oficial) }}">{{ $nivel_no_oficial }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            @if ($idioma === 'Otro idioma')
+                                {{-- Campo para especificar otro idioma --}}
+                                <div class="mb-3 mt-3">
+                                    <input type="text" class="form-control" id="otro_idioma" name="OTRO"
+                                        placeholder="Especificar idioma">
+                                </div>
+                            @endif
+                        </div>
+
+                        @if ($index < count(config('options.idiomas')) - 1)
+                            <hr>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Bloque Formación Profesional (Cursos realizados anteriormente) --}}
+            <div class="row">
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <h3 class="text-center mb-5">Formación Profesional (Cursos realizados anteriormente)</h3>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Denominación Curso</th>
+                                    <th>Año</th>
+                                    <th>Duración (Horas)</th>
+                                    <th>Centro</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="form-control" name="curso[]"></td>
+                                    <td><input type="text" class="form-control" name="anio[]"></td>
+                                    <td><input type="text" class="form-control" name="duracion[]"></td>
+                                    <td><input type="text" class="form-control" name="centro[]"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label d-block">¿Está seleccionado/a en otro curso?</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="otro_curso" id="otro_curso_si"
+                                value="si">
+                            <label class="form-check-label" for="otro_curso_si">Sí</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="otro_curso" id="otro_curso_no"
+                                value="no" checked>
+                            <label class="form-check-label" for="otro_curso_no">No</label>
+                        </div>
+                    </div>
+
+                    <!-- Campo texto oculto para escribir el curso -->
+                    <div class="mt-3" id="otro_curso_text_container" style="display:none;">
+                        <label for="otro_curso_text" class="form-label">Indique el nombre del otro curso</label>
+                        <input type="text" class="form-control" id="otro_curso_text" name="otro_curso_text"
+                            placeholder="Nombre del curso">
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bloque Experiencia Profesional --}}
+            <div class="row">
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <h3 class="text-center mb-5">Experiencia Profesional</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Puesto</th>
+                                    <th>Funciones</th>
+                                    <th>Empresa </th>
+                                    <th>Duración (años)</th>
+                                    <th>Sector</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" class="form-control" name="puesto"></td>
+                                    <td><input type="text" class="form-control" name="funciones"></td>
+                                    <td><input type="text" class="form-control" name="empresa"></td>
+                                    <td><input type="text" class="form-control" name="duracion_trabajo"></td>
+                                    <td><input type="text" class="form-control" name="sector_anterior"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bloque Motivos --}}
+            <div class="row">
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <h3 class="text-center mb-5">Motivos para solicitar el Curso</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="motivo_interes"
+                                    name="motivo_interes">
+                                <label class="form-check-label" for="motivo_interes">Interés</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="motivo_prestacion"
+                                    name="motivo_prestacion">
+                                <label class="form-check-label" for="motivo_prestacion">No perder la Prestación</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="motivo_cualificacion"
+                                    name="motivo_cualificacion">
+                                <label class="form-check-label" for="motivo_cualificacion">Mejorar la
+                                    Cualificación</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="motivo_trabajo"
+                                    name="motivo_trabajo">
+                                <label class="form-check-label" for="motivo_trabajo">Encontrar Trabajo</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="motivo_sector" name="motivo_sector">
+                                <label class="form-check-label" for="motivo_sector">Cambiar de Sector</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="motivo_otros" name="motivo_otros">
+                                <label class="form-check-label" for="motivo_otros">Otros</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bloque Autorizaciones --}}
+            <div class="row">
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <h3 class="text-center mb-4">Autorizaciones</h3>
+                    <p>
+                        Con la presentación de esta solicitud, y de acuerdo con el artículo 28 de la Ley 39/2015 de 1 de
+                        octubre, de Procedimiento Administrativo Común de las Administraciones Públicas, la Subdirección
+                        General de Programas y Gestión podrá consultar o recabar documentos elaborados por cualquier
+                        Administración salvo que consté en el procedimiento su oposición expresa. En particular se recabarán
+                        los siguientes datos salvo que usted marque expresamente:
+                    </p>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="oposicion_seguridad_social"
+                            name="oposicion_seguridad_social">
+                        <label class="form-check-label" for="oposicion_seguridad_social">Me opongo a la consulta de datos
+                            acreditativos de Seguridad social (Vida laboral).</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="oposicion_titulacion"
+                            name="oposicion_titulacion">
+                        <label class="form-check-label" for="oposicion_titulacion">Me opongo a la consulta de datos
+                            acreditativos sobre titulación académica.</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="oposicion_identidad"
+                            name="oposicion_identidad">
+                        <label class="form-check-label" for="oposicion_identidad">Me opongo a la consulta de datos
+                            acreditativos de identidad.</label>
+                    </div>
+
+                    <p class="mt-3 fst-italic">
+                        En el caso de oponerse a la consulta para la comprobación de los datos se compromete a aportar la
+                        documentación pertinente.
+                    </p>
+                </div>
+            </div>
+
+
+            {{-- Bloque LPD --}}
+            <div class="row">
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <h3 class="text-center mb-5">Información de Protección de Datos</h3>
+                    <dl class="row">
+                        <dt class="col-sm-4">Responsable</dt>
+                        <dd class="col-sm-8">Secretaría General de Formación Profesional. C/ Alcalá 34, 28071 Madrid.</dd>
+
+                        <dt class="col-sm-4">Nombre de la actividad</dt>
+                        <dd class="col-sm-8">Acciones formativas y seguimiento para la obtención del certificado de
+                            profesionalidad.</dd>
+
+                        <dt class="col-sm-4">Finalidad</dt>
+                        <dd class="col-sm-8">
+                            Gestión de los diferentes procesos y acciones formativas que se desarrollan en el ámbito
+                            estatal. Seguimiento.
+                        </dd>
+                        <dt class="col-sm-4"> Legitimación </dt>
+                        <dd class="col-sm-8">
+                            La licitud en el tratamiento de los datos se basa en el artículo 6.1 e) del Reglamento (UE)
+                            2016/679 y en la Ley 30/2015, de 9 de septiembre, por la que se regula el Sistema de Formación
+                            Profesional para el empleo en el ámbito laboral.
+                        </dd>
+                        <dt class="col-sm-4"> Destinatarios </dt>
+                        <dd class="col-sm-8">
+                            No hay cesión de datos.
+                        </dd>
+                        <dt class="col-sm-4"> Periodo de conservación </dt>
+                        <dd class="col-sm-8">
+                            Los datos se conservarán durante el tiempo necesario para cumplir con la finalidad para la que
+                            se recabaron y para determinar las posibles responsabilidades. </dd>
+                        <dt class="col-sm-4"> Derechos </dt>
+                        <dd class="col-sm-8">
+                            Puede ejercitar los derechos de los artículos 15 al 22 del Reglamento, que sean de aplicación de
+                            acuerdo a la base jurídica del tratamiento, ante el Delegado de Protección de Datos
+                            (dpd@educacion.gob.es). Podrá hacerlo en la sede electrónica asociada del Ministerio,
+                            presencialmente en las oficinas de registro o por correo postal.
+                        </dd>Asimismo, puede presentar reclamación ante la Agencia Española de Protección de Datos,
+                        autoridad de control en materia de protección de datos.(www.aepd.es/es)
+                    </dl>
+                </div>
+            </div>
+
+            {{-- Lugar y Fecha --}}
+            <div class="row">
+                <div
+                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                    <div class="row">
+                        <div class="col-md-8 mb-4">
+                            <label for="lugar" class="form-label">Lugar</label>
+                            <input type="text" class="form-control" id="lugar" name="lugar"
+                                placeholder="Ciudad">
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <label for="fecha" class="form-label">Fecha</label>
+                            <input type="date" class="form-control" id="fecha" name="fecha">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Firma --}}
+                <div class="row">
+                    <div
+                        class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                        @include('components.sign-canvas')
+
+                    </div>
+                </div>
+            </div>
+
+            {{-- Botón de envío --}}
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary px-5 py-2">Enviar Solicitud</button>
+            </div>
         </div>
     </form>
 @endsection
+@push('scripts')
+    <script src="{{ asset('js/mec-form.js') }}"></script>
+@endpush
