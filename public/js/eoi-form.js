@@ -1,75 +1,124 @@
-
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form');
     if (!form) return;
 
+    const btn = form.querySelector('[type="submit"]');
+    const btnText = btn?.querySelector('.btn-text');
+    const spinner = btn?.querySelector('.spinner');
+
+    // Siempre reactivar botón al cargar
+    if (btn) {
+        btn.disabled = false;
+        if (btnText) btnText.textContent = 'Enviar';
+        if (spinner) spinner.style.display = 'none';
+    }
+
     const validator = new JustValidate(`#${form.id}`);
 
-    validator
-        .addField('#firstSurname', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
-        .addField('#name', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
-        .addField('#tipo_documento', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
-        .addField('#nif', [
-            { rule: 'required', errorMessage: 'Campo obligatorio' },
-            {
-                validator: (value, fields) => {
-                    const tipo = document.getElementById('tipo_documento').value;
-                    if (tipo === 'DNI' || tipo === 'NIE') return isValidDniNie(value);
-                    return true; // Pasaporte no se valida
-                },
-                errorMessage: 'Documento inválido',
-            }
-        ])
-        .addField('#telefono', [
-            { rule: 'required', errorMessage: 'Campo obligatorio' },
-            {
-                validator: value =>
-                    /^(\+34|34)?\s?(6|7|8|9)\d{2}[\s-]?\d{3}[\s-]?\d{3}$/.test(value),
-                errorMessage: 'Formato de teléfono inválido',
-            }
-        ])
-        .addField('#email', [
-            { rule: 'required', errorMessage: 'Campo obligatorio' },
-            { rule: 'email', errorMessage: 'Formato de email inválido' }
-        ])
-        .addField('#empresa', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
-        .addField('#nif_empresa', [
-            { rule: 'required', errorMessage: 'Campo obligatorio' },
-            {
-                validator: value => isValidCif(value),
-                errorMessage: 'CIF inválido',
-            }
-        ])
-        .addField('#actividad_empresa', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
-        .addField('#tamano_empresa', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
-        .addField('#dni_file', [{ rule: 'required', errorMessage: 'Campo obligatorio' }])
-        .addField('#condiciones', [
-            {
-                validator: () => document.getElementById('condiciones').checked,
-                errorMessage: 'Debes aceptar el condicionado',
-            }
-        ])
-        .onSuccess((event) => {
-            const btn = form.querySelector('[type="submit"]');
-            if (btn) {
-                btn.disabled = true;
-                btn.innerText = 'Enviando...';
-            }
+    // Función avanzada de safeAddField
+    function safeAddField(field, rules) {
+        if (!Array.isArray(rules) || rules.length === 0) {
+            rules = [{ rule: 'required', errorMessage: 'Campo obligatorio' }];
+        }
 
-            // Lógica de firma
-            const canvas = document.getElementById("signatureCanvas");
-            const signatureInput = document.getElementById("signatureInput");
-            if (canvas && signatureInput && typeof SignaturePad !== 'undefined') {
-                const signaturePad = new SignaturePad(canvas);
-                if (!signaturePad.isEmpty()) {
-                    signatureInput.value = signaturePad.toDataURL();
-                }
-            }
+        let selector;
 
-            form.submit();
-        });
+        if (field.type === 'radio' || field.type === 'checkbox') {
+            selector = `[name="${field.name}"]`;
+            if (!rules.some(r => r.validator)) {
+                rules.push({
+                    validator: () => {
+                        const checked = form.querySelectorAll(selector + ':checked');
+                        return checked.length > 0;
+                    },
+                    errorMessage: 'Debes seleccionar al menos una opción'
+                });
+            }
+        } else {
+            selector = field.id ? `#${field.id}` : `[name="${field.name}"]`;
+        }
+
+        if (document.querySelector(selector)) {
+            validator.addField(selector, rules);
+        } else {
+            console.warn(`⚠ Campo no encontrado: ${selector}`);
+        }
+    }
+
+    // Recorremos todos los inputs, selects y textareas
+    const allFields = form.querySelectorAll('input, select, textarea');
+    allFields.forEach(field => {
+        let rules = [];
+
+        // Por defecto todos son required, salvo checkboxes/radios que se gestionan aparte
+        if (field.type !== 'checkbox' && field.type !== 'radio') {
+            rules.push({ rule: 'required', errorMessage: 'Campo obligatorio' });
+        }
+
+        // Validaciones específicas por id
+        switch (field.id) {
+            case 'nif':
+                rules.push({
+                    validator: (value) => {
+                        const tipo = document.getElementById('tipo_documento')?.value;
+                        if (tipo === 'DNI' || tipo === 'NIE') return isValidDniNie(value);
+                        return true;
+                    },
+                    errorMessage: 'Documento inválido',
+                });
+                break;
+
+            case 'telefono':
+                rules.push({
+                    validator: value => /^(\+34|34)?\s?(6|7|8|9)\d{2}[\s-]?\d{3}[\s-]?\d{3}$/.test(value),
+                    errorMessage: 'Formato de teléfono inválido',
+                });
+                break;
+
+            case 'email':
+                rules.push({ rule: 'email', errorMessage: 'Formato de email inválido' });
+                break;
+
+            case 'nif_empresa':
+                rules.push({
+                    validator: value => isValidCif(value),
+                    errorMessage: 'CIF inválido',
+                });
+                break;
+
+            case 'condiciones':
+                rules = [{
+                    validator: () => field.checked,
+                    errorMessage: 'Debes aceptar el condicionado',
+                }];
+                break;
+        }
+
+        safeAddField(field, rules);
+    });
+
+    validator.onSuccess(() => {
+        if (btn) {
+            btn.disabled = true;
+            if (btnText) btnText.textContent = 'Enviando...';
+            if (spinner) spinner.style.display = 'inline-block';
+        }
+
+        // Lógica de firma
+        const canvas = document.getElementById("signatureCanvas");
+        const signatureInput = document.getElementById("signatureInput");
+        if (canvas && signatureInput && typeof SignaturePad !== 'undefined') {
+            const signaturePad = new SignaturePad(canvas);
+            if (!signaturePad.isEmpty()) {
+                signatureInput.value = signaturePad.toDataURL();
+            }
+        }
+
+        form.submit();
+    });
 });
 
+// Validadores DNI/NIE y CIF
 function isValidDniNie(value) {
     const val = value.trim().toUpperCase();
     const letters = 'TRWAGMYFPDXBNJZSQVHLCKE';

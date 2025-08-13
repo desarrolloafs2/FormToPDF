@@ -29,7 +29,7 @@
                         <!-- Apellidos -->
                         <div class="row">
                             <div class="col-lg-6 col-12 mb-4">
-                                <label for="firstSurname" class="form-label">Primer Apellido *</label>
+                                <label for="firstSurname" class="form-label">Primer Apellido </label>
                                 <input type="text" class="form-control" id="firstSurname" name="firstSurname" required>
                             </div>
                             <div class="col-lg-6 col-12 mb-4">
@@ -41,7 +41,7 @@
                         <!-- Nombre y tipo de documento -->
                         <div class="row">
                             <div class="col-lg-6 col-12 mb-4">
-                                <label for="name" class="form-label">Nombre *</label>
+                                <label for="name" class="form-label">Nombre </label>
                                 <input type="text" class="form-control" id="name" name="name" required>
                             </div>
                             <div class="col-lg-6 col-12 mb-4">
@@ -53,7 +53,7 @@
                         <!-- Documento y sexo -->
                         <div class="row">
                             <div class="col-lg-6 col-12 mb-4">
-                                <label for="nif" class="form-label">Nº de Documento *</label>
+                                <label for="nif" class="form-label">Nº de Documento </label>
                                 <input type="text" class="form-control" id="nif" name="nif" required>
                             </div>
                             <div class="col-lg-6 col-12 mb-4">
@@ -86,7 +86,7 @@
                         </div>
 
                         <div class="col-md-3 mb-4">
-                            <x-select id="provincia" name="provincia" label="Provincia*" :options="array_combine(config('options.provincias'), config('options.provincias'))" />
+                            <x-select id="provincia" name="provincia" label="Provincia" :options="array_combine(config('options.provincias'), config('options.provincias'))" />
                         </div>
 
                         <div class="col-md-3 mb-4">
@@ -97,11 +97,11 @@
                     <!-- Contacto -->
                     <div class="row">
                         <div class="col-md-6 mb-4">
-                            <label for="telefono" class="form-label">Teléfono Móvil *</label>
+                            <label for="telefono" class="form-label">Teléfono Móvil </label>
                             <input type="text" class="form-control" id="telefono" name="telefono" required>
                         </div>
                         <div class="col-md-6 mb-4">
-                            <label for="email" class="form-label">Correo Electrónico *</label>
+                            <label for="email" class="form-label">Correo Electrónico </label>
                             <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                     </div>
@@ -130,8 +130,7 @@
                     <!-- ¿Tiene discapacidad? -->
                     <div class="mb-3">
                         <fieldset id="discapacidad">
-                            <label class="form-label d-block text-danger">¿Persona con discapacidad? (No
-                                obligatoria)</label>
+                            <label class="form-label d-block">¿Persona con discapacidad?</label>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="discapacidad" id="discapacidad_si"
                                     value="1">
@@ -198,22 +197,23 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-4">
-                            <label for="empresa" class="form-label">Nombre de la Empresa (Razón Social) *</label>
+                            <label for="empresa" class="form-label">Nombre de la Empresa (Razón Social) </label>
                             <input type="text" class="form-control" id="empresa" name="empresa" required>
                         </div>
                         <div class="col-md-6 mb-4">
-                            <label for="nif_empresa" class="form-label">NIF Empresa *</label>
+                            <label for="nif_empresa" class="form-label">NIF Empresa </label>
                             <input type="text" class="form-control" id="nif_empresa" name="nif_empresa" required>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-4">
-                            <x-select id="actividad_empresa" name="actividad_empresa" label="Actividad de la Empresa *" :options="array_combine(config('options.actividad'), config('options.actividad'))" />
+                            <x-select id="actividad_empresa" name="actividad_empresa" label="Actividad de la Empresa "
+                                :options="array_combine(config('options.actividad'), config('options.actividad'))" />
                         </div>
 
                         <div class="col-md-6 mb-4">
-                            <label for="tamano_empresa" class="form-label">Tamaño de la Empresa *</label>
+                            <label for="tamano_empresa" class="form-label">Tamaño de la Empresa </label>
                             <select class="form-select" id="tamano_empresa" name="tamano_empresa" required>
                                 <option value="">Selecciona</option>
                                 <option value="1 - 9 trabajadores">Menos de 10 trabajadores</option>
@@ -225,10 +225,12 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-4">
-                            <x-select id="provincia_empresa" name="province" label="Provincia (empresa)" :options="array_combine(config('options.provincias'), config('options.provincias'))" />
+                            <x-select id="provincia_empresa" name="province" label="Provincia (empresa)"
+                                :options="array_combine(config('options.provincias'), config('options.provincias'))" />
                         </div>
                         <div class="col-md-6 mb-4">
-                            <x-select id="ccaa" name="ccaa_empresa" label="Comunidad Autónoma (empresa)" :options="array_combine(config('options.ccaa'), config('options.ccaa'))" required />
+                            <x-select id="ccaa" name="ccaa_empresa" label="Comunidad Autónoma (empresa)"
+                                :options="array_combine(config('options.ccaa'), config('options.ccaa'))" required />
                         </div>
                     </div>
 
@@ -336,11 +338,11 @@
 
                     <!-- Documentación Adjunta -->
                     <h2 class="text-center mb-5">Documentación Adjunta</h2>
-                    <p>* Adjuntar documentación según se indique en las instrucciones de inscripción.</p>
+                    <p> Adjuntar documentación según se indique en las instrucciones de inscripción.</p>
 
                     {{-- <div class="mb-4">
                         <label for="dni_file" class="form-label">Copia del DNI/NIE/Pasaporte/Permiso de Residencia
-                            *</label>
+                            </label>
                         <input class="form-control" type="file" id="dni_file" name="dni_file" required>
                     </div>
 
@@ -406,7 +408,7 @@
                     <!-- Información adicional (opcional) -->
                     <div class="mt-3">
                         <small class="text-muted">
-                            <strong>* FINALIDAD</strong> del tratamiento de los datos: para gestionar su solicitud de
+                            <strong> FINALIDAD</strong> del tratamiento de los datos: para gestionar su solicitud de
                             admisión en la actividad formativa seleccionada, así como en su caso la posterior
                             matriculación, gestión, coordinación y celebración del mismo, una vez admitido.
                             En cuanto a los <strong> DESTINATARIOS</strong> de los datos se deberá incorporar que serán
@@ -444,8 +446,19 @@
 
                     {{-- <!-- Submit --> --}}
                     <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-primary px-5 py-2"><strong>Enviar
-                                Solicitud</strong></button>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-text"> <strong>Enviar
+                                    Solicitud</strong> </span>
+                            <span class="spinner" style="display:none; margin-left:8px;">
+                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" class="animate-spin">
+                                    <circle cx="12" cy="12" r="10" stroke-width="4" class="opacity-25" />
+                                    <path fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                        class="opacity-75" />
+                                </svg>
+                            </span>
+                        </button>
+                        >
                     </div>
 
                 </div> <!-- /.container-fluid interno -->

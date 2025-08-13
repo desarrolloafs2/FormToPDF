@@ -15,6 +15,7 @@ return [
         'mec' => [
             'request' => \App\Http\Requests\MecParticipantRequest::class,
             'formatter' =>MecFormDataFormatterService::class,
+            
         ],
     ],
 ];
