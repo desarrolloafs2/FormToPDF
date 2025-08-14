@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'sin_estudios' => 'Sin estudios',
+    'estudios_primarios' => 'Estudios primarios',
+    'certificado_escolaridad' => 'Certificado de escolaridad',
+    'graduado_escolar' => 'Graduado escolar',
+    'eso' => 'ESO',
+    'fp1' => 'FP I',
+    'ciclo_grado_medio' => 'Ciclo Grado Medio',
+    'bup_1_2' => 'BUP (1º y 2º curso)',
+    'bup_1_2_3' => 'BUP (1º, 2º y 3º curso)',
+    'fp2' => 'FP II',
+    'ciclo_grado_superior' => 'Ciclo Grado Superior',
+    'cou' => 'COU',
+    'bachiller' => 'Bachiller',
+    'diplomatura' => 'Diplomatura',
+    'licenciatura' => 'Licenciatura',
+    'grado' => 'Grado',
+    'doctorado' => 'Doctorado',
+    'certificado_profesional_n1' => 'Certificado profesional Nivel 1',
+    'certificado_profesional_n2' => 'Certificado profesional Nivel 2',
+    'certificado_profesional_n3' => 'Certificado profesional Nivel 3',
+    'otros' => 'Otros',
+];

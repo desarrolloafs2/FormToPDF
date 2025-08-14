@@ -1,7 +1,12 @@
 @extends('layouts.app')
 
 @section('title', 'Formulario de Participación')
-
+@php
+    $educacion = include resource_path('views/options/educacion.php');
+    $columns = 2; // Número de columnas deseadas
+    $itemsPerCol = ceil(count($educacion) / $columns); // Calcula elementos por columna
+    $chunks = array_chunk($educacion, $itemsPerCol, true); // Divide el array en columnas
+@endphp
 @section('content')
     <h1 class="text-center mb-4">Formulario de Inscripción</h1>
 
@@ -10,7 +15,7 @@
         <div class="container-fluid">
 
             {{-- Bloque Datos Personales --}}
-            <div class="row">
+            <div class="row" id="datosPersonales">
                 <div
                     class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
                     <h2 class="text-center mb-5">Datos Personales</h2>
@@ -42,49 +47,38 @@
 
                         {{-- Nombre y género --}}
                         <div class="row">
-                            <div class="col-lg-6 col-12 mb-4">
+                            <div class="col-lg-5 col-12 mb-4">
                                 <label for="name" class="form-label">Nombre *</label>
                                 <input type="text" class="form-control" id="name" name="name" required>
                             </div>
-                            <div class="col-lg-6 col-12 mb-4">
-                                <x-select name="sexo" label="Género" :options="array_combine(config('options.sexo'), config('options.sexo'))" required />
-                            </div>
-
-                        </div>
-
-                        {{-- Documento y tipo --}}
-                        <div class="row">
-                            <div class="col-lg-6 col-12 mb-4">
-                                <x-select id="tipo_documento" name="tipo_documento" label="Tipo de Documento"
-                                    :options="array_combine(config('options.dni'), config('options.dni'))" required />
-                            </div>
-                            <div class="col-lg-6 col-12 mb-4">
-                                <label for="nif" class="form-label">Nº de Documento *</label>
+                            <div class="col-lg-4 col-12 mb-4">
+                                <label for="nif" class="form-label">Documento de Identidad</label>
                                 <input type="text" class="form-control" id="nif" name="nif" required>
                             </div>
-
+                            <div class="col-lg-3 col-12 mb-4">
+                                <x-select name="sexo" label="Género" :options="array_combine(config('options.sexo'), config('options.sexo'))" required />
+                            </div>
                         </div>
 
-                        {{-- Fecha y dirección --}}
+                        {{-- Dirección y tipo de vía --}}
                         <div class="row">
                             <div class="col-lg-4 col-12 mb-4">
-                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
-                                <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento">
+                                <x-select id="tipo_via" name="tipo_via" label="Tipo de Vía" :options="array_combine(config('options.via'), config('options.via'))" required />
                             </div>
                             <div class="col-lg-8 col-12 mb-4">
-                                <label for="direccion" class="form-label">Dirección</label>
-                                <input type="text" class="form-control" id="direccion" name="direccion">
+                                <label for="direccion" class="form-label">Dirección *</label>
+                                <input type="text" class="form-control" id="direccion" name="direccion" required>
                             </div>
                         </div>
 
                         {{-- Ciudad, CP, provincia --}}
                         <div class="row">
                             <div class="col-md-4 mb-4">
-                                <label for="localidad" class="form-label">Localidad</label>
+                                <label for="localidad" class="form-label">Localidad *</label>
                                 <input type="text" class="form-control" id="localidad" name="localidad">
                             </div>
                             <div class="col-md-4 mb-4">
-                                <label for="codigo_postal" class="form-label">Código Postal</label>
+                                <label for="codigo_postal" class="form-label">Código Postal *</label>
                                 <input type="text" class="form-control" id="codigo_postal" name="codigo_postal">
                             </div>
                             <div class="col-md-4 mb-4">
@@ -111,7 +105,7 @@
                         {{-- Otros datos --}}
                         <div class="row">
                             <div class="col-lg-6 col-12 mb-3">
-                                <label class="form-label d-block">¿Dispone de Carnet?</label>
+                                <label class="form-label d-block">¿Dispone de Carnet? *</label>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="carnet" id="carnet_si"
                                         value="si">
@@ -211,12 +205,10 @@
             </div>
 
             {{-- Bloque Situación Laboral --}}
-            <div class="row">
+            <div class="row" id="situacionLaboral">
                 <div
                     class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
                     <h3 class="text-center mb-5">Situación Laboral</h3>
-
-                    {{-- Radio buttons Situación Laboral --}}
                     @foreach (config('options.situacion_laboral') as $value => $label)
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="situacion_laboral"
@@ -243,12 +235,15 @@
                                 <label class="form-label">Situación persona desempleada</label>
                                 @foreach (config('options.situacion_desempleado') as $key => $desc)
                                     <div class="form-check">
-                                        <input class="form-check-input desempleado-checkbox" type="checkbox"
-                                            id="{{ $key }}" name="{{ $key }}" disabled>
-                                        <label class="form-check-label"
-                                            for="{{ $key }}">{{ $desc }}</label>
+                                        <input class="form-check-input desempleado-radio" type="radio"
+                                            id="desempleado_{{ $key }}" name="situacion_desempleado"
+                                            value="{{ $key }}" disabled>
+                                        <label class="form-check-label" for="desempleado_{{ $key }}">
+                                            {{ $desc }}
+                                        </label>
                                     </div>
                                 @endforeach
+
                             </div>
                         @endif
 
@@ -266,19 +261,23 @@
                                             disabled>
                                     </div>
                                 </div>
-
                                 <div class="mb-3">
                                     <label for="razon_social" class="form-label">Razón Social</label>
                                     <input type="text" class="form-control" id="razon_social" name="razon_social"
                                         disabled>
                                 </div>
-
-                                <div class="mb-3">
-                                    <label for="domicilio_trabajo" class="form-label">Domicilio Centro Trabajo</label>
-                                    <input type="text" class="form-control" id="domicilio_trabajo"
-                                        name="domicilio_trabajo" disabled>
+                                <div class="row">
+                                    <div class="col-md-9 mb-3">
+                                        <label for="domicilio_trabajo" class="form-label">Domicilio Centro Trabajo</label>
+                                        <input type="text" class="form-control" id="domicilio_trabajo"
+                                            name="domicilio_trabajo" disabled>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="cp_trabajo" class="form-label">C.P.</label>
+                                        <input type="text" class="form-control" id="cp_trabajo" name="cp_trabajo"
+                                            disabled>
+                                    </div>
                                 </div>
-
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="localidad_trabajo" class="form-label">Localidad</label>
@@ -286,10 +285,14 @@
                                             name="localidad_trabajo" disabled>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="cp_trabajo" class="form-label">C.P.</label>
-                                        <input type="text" class="form-control" id="cp_trabajo" name="cp_trabajo"
-                                            disabled>
+                                        <x-select name="regimen_cotización" label="Régimen de Cotización"
+                                            :options="array_combine(
+                                                config('options.regimen_cotizacion'),
+                                                config('options.regimen_cotizacion'),
+                                            )" />
                                     </div>
+
+
                                 </div>
 
                                 <label class="form-label d-block mt-3">Categoría</label>
@@ -307,21 +310,16 @@
                                     <div class="col-md-6">
                                         @foreach (array_slice(config('options.categorias'), 4, null, true) as $key => $desc)
                                             <div class="form-check">
-                                                <input class="form-check-input ocupado-checkbox" type="checkbox"
-                                                    id="{{ $key }}" name="{{ $key }}" disabled>
-                                                <label class="form-check-label"
-                                                    for="{{ $key }}">{{ $desc }}</label>
+                                                <input class="form-check-input ocupado-radio" type="radio"
+                                                    id="{{ $key }}" name="categoria"
+                                                    value="{{ $key }}" disabled>
+                                                <label class="form-check-label" for="{{ $key }}">
+                                                    {{ $desc }}
+                                                </label>
                                             </div>
                                         @endforeach
                                     </div>
                                 </div>
-
-                                <div class="mt-3">
-                                    <label for="regimen_cotizacion" class="form-label">Régimen de cotización</label>
-                                    <input type="text" class="form-control" id="regimen_cotizacion"
-                                        name="regimen_cotizacion" placeholder="Ej.: RG, FD, RE, etc." disabled>
-                                </div>
-                            </div>
                         @endif
 
                         <hr>
@@ -334,112 +332,23 @@
                 <div
                     class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
                     <h3 class="text-center mb-5">Datos Académicos</h3>
-
-                    <label class="form-label">Nivel Académico</label>
+                    <label class="form-label mb-1"><strong>Nivel Académico</strong></label>
+                    <hr>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="sin_estudios" name="sin_estudios">
-                                <label class="form-check-label" for="sin_estudios">Sin estudios</label>
+                        @foreach ($chunks as $chunk)
+                            <div class="col-md-{{ 12 / $columns }}">
+                                @foreach ($chunk as $id => $label)
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input nivel-academico-radio" type="radio"
+                                            id="{{ $id }}" name="nivel_academico"
+                                            value="{{ $id }}">
+                                        <label class="form-check-label"
+                                            for="{{ $id }}">{{ $label }}</label>
+                                    </div>
+                                @endforeach
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="estudios_primarios"
-                                    name="estudios_primarios">
-                                <label class="form-check-label" for="estudios_primarios">Estudios primarios</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="certificado_escolaridad"
-                                    name="certificado_escolaridad">
-                                <label class="form-check-label" for="certificado_escolaridad">Certificado de
-                                    escolaridad</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="graduado_escolar"
-                                    name="graduado_escolar">
-                                <label class="form-check-label" for="graduado_escolar">Graduado escolar</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="eso" name="eso">
-                                <label class="form-check-label" for="eso">ESO</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="fp1" name="fp1">
-                                <label class="form-check-label" for="fp1">FP I</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="ciclo_grado_medio"
-                                    name="ciclo_grado_medio">
-                                <label class="form-check-label" for="ciclo_grado_medio">Ciclo Grado Medio</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="bup_1_2" name="bup_1_2">
-                                <label class="form-check-label" for="bup_1_2">BUP (1º y 2º curso)</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="bup_1_2_3" name="bup_1_2_3">
-                                <label class="form-check-label" for="bup_1_2_3">BUP (1º, 2º y 3º curso)</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="fp2" name="fp2">
-                                <label class="form-check-label" for="fp2">FP II</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="ciclo_grado_superior"
-                                    name="ciclo_grado_superior">
-                                <label class="form-check-label" for="ciclo_grado_superior">Ciclo Grado Superior</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="cou" name="cou">
-                                <label class="form-check-label" for="cou">COU</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="bachiller" name="bachiller">
-                                <label class="form-check-label" for="bachiller">Bachiller</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="diplomatura" name="diplomatura">
-                                <label class="form-check-label" for="diplomatura">Diplomatura</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="licenciatura" name="licenciatura">
-                                <label class="form-check-label" for="licenciatura">Licenciatura</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="grado" name="grado">
-                                <label class="form-check-label" for="grado">Grado</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="doctorado" name="doctorado">
-                                <label class="form-check-label" for="doctorado">Doctorado</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="certificado_profesional_n1"
-                                    name="certificado_profesional_n1">
-                                <label class="form-check-label" for="certificado_profesional_n1">Certificado profesional
-                                    Nivel 1</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="certificado_profesional_n2"
-                                    name="certificado_profesional_n2">
-                                <label class="form-check-label" for="certificado_profesional_n2">Certificado profesional
-                                    Nivel 2</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="certificado_profesional_n3"
-                                    name="certificado_profesional_n3">
-                                <label class="form-check-label" for="certificado_profesional_n3">Certificado profesional
-                                    Nivel 3</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="otros" name="otros">
-                                <label class="form-check-label" for="otros">Otros</label>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
-
                     <div class="mt-4">
                         <label for="especialidad" class="form-label">Especialidad</label>
                         <input type="text" class="form-control" id="especialidad" name="especialidad">
@@ -448,62 +357,33 @@
             </div>
 
             {{-- Bloque Idiomas --}}
+            {{-- Bloque Idiomas --}}
             <div class="row">
                 <div
                     class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
                     <h3 class="text-center mb-5">Idiomas</h3>
 
                     @foreach (config('options.idiomas') as $index => $idioma)
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">{{ $idioma }}</label>
+                        <div class="idioma-group mb-4">
+                            <input type="checkbox" id="idioma_{{ $index }}" class="chk-idioma"
+                                data-index="{{ $index }}">
+                            <label for="idioma_{{ $index }}">{{ $idioma }}</label>
 
-                            {{-- Checkbox Con Titulación Oficial --}}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="{{ strtolower($idioma) }}"
-                                    name="{{ strtoupper($idioma) }}">
-                                <label class="form-check-label" for="{{ strtolower($idioma) }}">Con Titulación
-                                    Oficial</label>
-                            </div>
-
-                            {{-- Niveles oficiales --}}
-                            <div class="ms-3">
-                                @foreach (config('options.niveles_oficiales') as $nivel)
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox"
-                                            id="{{ strtolower($idioma) . '_' . strtolower($nivel) }}"
-                                            name="{{ $nivel }}{{ $index + 1 }}">
-                                        <label class="form-check-label"
-                                            for="{{ strtolower($idioma) . '_' . strtolower($nivel) }}">{{ $nivel }}</label>
-                                    </div>
+                            {{-- Contenedor de niveles --}}
+                            <div class="niveles mt-2" style="display:none;">
+                                @foreach (array_merge(config('options.niveles_oficiales'), config('options.niveles_no_oficiales')) as $nivel)
+                                    <label class="me-2">
+                                        <input type="radio" name="IDIOMA_{{ $index }}"
+                                            value="{{ $nivel }}"> {{ $nivel }}
+                                    </label>
                                 @endforeach
                             </div>
 
-                            {{-- Checkbox Sin Titulación Oficial --}}
-                            <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox"
-                                    id="{{ strtolower($idioma) }}_sin_titulacion" name="BÁSICO_{{ $index + 1 }}">
-                                <label class="form-check-label" for="{{ strtolower($idioma) }}_sin_titulacion">Sin
-                                    Titulación Oficial</label>
-                            </div>
-
-                            {{-- Niveles no oficiales --}}
-                            <div class="ms-3">
-                                @foreach (config('options.niveles_no_oficiales') as $nivel_no_oficial)
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox"
-                                            id="{{ strtolower($idioma) . '_' . strtolower($nivel_no_oficial) }}"
-                                            name="{{ strtoupper($nivel_no_oficial) }}_{{ $index + 1 }}">
-                                        <label class="form-check-label"
-                                            for="{{ strtolower($idioma) . '_' . strtolower($nivel_no_oficial) }}">{{ $nivel_no_oficial }}</label>
-                                    </div>
-                                @endforeach
-                            </div>
-
+                            {{-- Campo para otro idioma --}}
                             @if ($idioma === 'Otro idioma')
-                                {{-- Campo para especificar otro idioma --}}
-                                <div class="mb-3 mt-3">
+                                <div class="mt-2" id="otro_idioma_container" style="display:none;">
                                     <input type="text" class="form-control" id="otro_idioma" name="OTRO"
-                                        placeholder="Especificar idioma">
+                                        placeholder="Especificar idioma" disabled>
                                 </div>
                             @endif
                         </div>
@@ -520,7 +400,6 @@
                 <div
                     class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
                     <h3 class="text-center mb-5">Formación Profesional (Cursos realizados anteriormente)</h3>
-
                     <div class="table-responsive">
                         <table class="table table-bordered align-middle">
                             <thead class="table-light">
@@ -555,7 +434,6 @@
                             <label class="form-check-label" for="otro_curso_no">No</label>
                         </div>
                     </div>
-
                     <!-- Campo texto oculto para escribir el curso -->
                     <div class="mt-3" id="otro_curso_text_container" style="display:none;">
                         <label for="otro_curso_text" class="form-label">Indique el nombre del otro curso</label>
@@ -596,7 +474,7 @@
             </div>
 
             {{-- Bloque Motivos --}}
-            <div class="row">
+            <div class="row" id="">
                 <div
                     class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
                     <h3 class="text-center mb-5">Motivos para solicitar el Curso</h3>
@@ -634,6 +512,8 @@
                                 <label class="form-check-label" for="motivo_otros">Otros</label>
                             </div>
                         </div>
+                        <div id="motivos_error"></div>
+
                     </div>
                 </div>
             </div>
@@ -670,7 +550,7 @@
                             acreditativos de identidad.</label>
                     </div>
 
-                    <p class="mt-3 fst-italic">
+                    <p class="mt-3 fst-italic" style="color: darkred;">
                         En el caso de oponerse a la consulta para la comprobación de los datos se compromete a aportar la
                         documentación pertinente.
                     </p>
@@ -740,7 +620,7 @@
                 </div>
 
                 {{-- Firma --}}
-                <div class="row">
+                <div class="row" id="signature">
                     <div
                         class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
                         @include('components.sign-canvas')

@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Formatters\EoiFormDataFormatterService;
 use App\Services\Formatters\MecFormDataFormatterService;
 
 return [
@@ -14,7 +15,7 @@ return [
         ],
         'mec' => [
             'request' => \App\Http\Requests\MecParticipantRequest::class,
-            'formatter' =>MecFormDataFormatterService::class,
+            'formatter' =>EoiFormDataFormatterService::class, // Use EoiFormDataFormatterService for MEC as well
             
         ],
     ],
