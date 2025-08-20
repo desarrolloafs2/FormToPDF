@@ -171,8 +171,6 @@ class MecParticipantRequest extends FormRequest
             $idiomaFields[] = 'IDIOMA_' . ($index + 1);
         }
 
-        $this->validateAtLeastOneChecked($validator, $idiomaFields, 'idiomas', 'Debe seleccionar al menos un idioma.');
-
         $validator->after(function ($validator) use ($idiomas) {
             $otroIndex = count($idiomas) - 1; // Último idioma es "Otro idioma"
             $otroCheckbox = 'IDIOMA_' . ($otroIndex + 1);
@@ -183,7 +181,6 @@ class MecParticipantRequest extends FormRequest
                 if (!$this->filled('OTRO')) {
                     $validator->errors()->add('OTRO', 'Debe especificar el idioma si selecciona "Otro idioma".');
                 }
-
                 // Debe marcarse al menos un nivel
                 if (!$this->filled($oficial) && !$this->filled($noOficial)) {
                     $validator->errors()->add('NIVEL_OTRO', 'Debe seleccionar un nivel para "Otro idioma".');

@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.disabled = false;
         if (btnText) btnText.textContent = 'Enviar';
         if (spinner) spinner.style.display = 'none';
+
+
     }
 
     // -------------------- SITUACIÓN LABORAL --------------------
@@ -94,6 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.querySelector(selector)) validation.addField(selector, rules);
         }
     });
+
+    const birthdateField = document.getElementById('birthdate');
+    if (birthdateField) {
+        validation.addField('#birthdate', [
+            { rule: 'required', errorMessage: 'La fecha de nacimiento es obligatoria' },
+            { rule: 'customRegexp', value: /^\d{4}-\d{2}-\d{2}$/, errorMessage: 'Formato inválido' }
+        ]);
+    }
 
     // Carnet
     if (document.getElementById('carnet_tipos')) {

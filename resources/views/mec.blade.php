@@ -104,7 +104,12 @@
 
                         {{-- Otros datos --}}
                         <div class="row">
-                            <div class="col-lg-6 col-12 mb-3">
+                            <div class="col-lg-4 col-12 mb-3">
+                                <label for="birthdate">Fecha de nacimiento</label>
+                                <input type="date" id="birthdate" name="birthdate" class="form-control" required>
+                            </div>
+
+                            <div class="col-lg-4 col-12 mb-3">
                                 <label class="form-label d-block">¿Dispone de Carnet? *</label>
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="carnet" id="carnet_si"
@@ -117,7 +122,7 @@
                                     <label class="form-check-label" for="carnet_no">No</label>
                                 </div>
                             </div>
-                            <div class="col-lg-6 col-12 mb-4">
+                            <div class="col-lg-4 col-12 mb-4">
                                 <label for="carnet_tipos" class="form-label">Tipos de Carnet</label>
                                 <input type="text" class="form-control" id="carnet_tipos" name="carnet_tipos">
                             </div>

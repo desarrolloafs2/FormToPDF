@@ -21,8 +21,10 @@ class MecFormDataFormatterService implements PdfFormFormatterInterface
         $data['nombre_completo'] = preg_replace('/\s+/', ' ', $nombreCompleto);
         $data['nif'] = strtoupper(trim($participant['nif'] ?? ''));
         $data['direccion'] = trim($participant['direccion'] ?? '');
+        $data['tipo_via'] = trim($participant['tipo_via'] ?? '');
         $data['localidad'] = trim($participant['localidad'] ?? '');
         $data['CP'] = trim($participant['codigo_postal'] ?? '');
+        $data['birthdate'] = trim($participant['birthdate'] ?? '');
         $data['provincia'] = trim($participant['provincia'] ?? '');
         $data['telefono_movil'] = preg_replace('/\s+/', '', $participant['telefono'] ?? '');
         $data['telefono_fijo'] = preg_replace('/\s+/', '', $participant['telefono_fijo'] ?? '');
