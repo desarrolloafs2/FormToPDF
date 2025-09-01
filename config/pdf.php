@@ -8,17 +8,15 @@ return [
                 'x' => 70,
                 'y' => 150,
                 'width' => 90,
-                'page' => 3
             ],
         ],
         'eoi' => [
             'layout' => 'pdf/layouts/eoi.pdf',
             'upload_path' => 'MATRICULAS WEB/EOI',
             'signature_coords' => [
-                'x' => 70,
-                'y' => 275,
-                'width' => 90,
-                'page' => 3
+                'x' => 50,    
+                'y' => 200,   
+                'width' => 150,
             ],
         ],
         'mec' => [
@@ -28,7 +26,6 @@ return [
                 'x' => 70,
                 'y' => 250,
                 'width' => 90,
-                'page' => 3
             ],
         ],
     ],
@@ -36,4 +33,3 @@ return [
     'signed_path' => 'pdf/signed/',
     'image_path' => 'image/',
 ];
-

@@ -9,6 +9,7 @@
     {{-- CSS --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/choices.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/forms.css') }}">
 
     {{-- JS (head) --}}
     <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>

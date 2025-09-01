@@ -26,8 +26,13 @@ Route::get('{type}', function ($type) {
     if (!array_key_exists($type, config('pdf.types'))) {
         abort(404);
     }
-    return view($type, ['type' => $type]);
+
+    return view($type, [
+        'type' => $type,
+        'isForTesting' => true, // Relleno automático para pruebas
+    ]);
 });
+
 
 
 // Ruta dinámica para procesar el formulario

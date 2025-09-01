@@ -1,7 +1,7 @@
 /**
  * Valida si un DNI o NIE es correcto
  */
-export function isValidDniNie(input) {
+window.isValidDniNie = function(input) {
     const value = input.trim().toUpperCase();
     const validLetters = 'TRWAGMYFPDXBNJZSQVHLCKE';
 
@@ -19,12 +19,12 @@ export function isValidDniNie(input) {
     }
 
     return false;
-}
+};
 
 /**
  * Valida si un CIF es correcto (según normativa AEAT)
  */
-export function isValidCif(input) {
+window.isValidCif = function(input) {
     const value = input.trim().toUpperCase();
     const cifRegex = /^[ABCDEFGHJNPQRSUVW][0-9]{7}[0-9A-J]$/;
 
@@ -57,12 +57,12 @@ export function isValidCif(input) {
     } else {
         return control === controlDigit.toString() || control === controlLetter;
     }
-}
+};
 
 /**
  * Verifica si una fecha es anterior a hoy
  */
-export function isDateBeforeToday(value) {
+window.isDateBeforeToday = function(value) {
     const inputDate = new Date(value);
     const today = new Date();
 
@@ -70,34 +70,34 @@ export function isDateBeforeToday(value) {
     today.setHours(0, 0, 0, 0);
 
     return inputDate < today;
-}
+};
 
 /**
  * Inicializa Choices.js sobre múltiples elementos
  */
-export function enableChoices(fields) {
-    fields.forEach(function (item) {
+window.enableChoices = function(fields) {
+    fields.forEach(function(item) {
         new Choices(item, {
             searchEnabled: true,
             itemSelectText: '',
             shouldSort: false,
         });
     });
-}
+};
 
 /**
  * Verifica si un SignaturePad no está vacío
  */
-export function isSignatureValid(signaturePad) {
+window.isSignatureValid = function(signaturePad) {
     return signaturePad && !signaturePad.isEmpty();
-}
+};
 
 /**
  * Establece el valor del input oculto con la firma
  */
-export function setSignatureValue(signaturePad, hiddenInputId = 'signatureInput') {
+window.setSignatureValue = function(signaturePad, hiddenInputId = 'signatureInput') {
     const input = document.getElementById(hiddenInputId);
     if (input && signaturePad && !signaturePad.isEmpty()) {
         input.value = signaturePad.toDataURL();
     }
-}
+};

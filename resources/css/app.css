@@ -1,0 +1,24 @@
+/* Estilo común para H2 y H5 */
+.form-section-title {
+    background-color: #28a745; /* verde bootstrap, cámbialo si quieres otro tono */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 40px auto; /* separa de otros elementos */
+    width: 50%; /* la franja ocupa la mitad de la pantalla */
+    font-weight: bold;
+}
+
+/* Ajuste para H5 para que se vea más pequeño pero con mismo estilo */
+.form-section-subtitle {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin: 30px auto;
+    width: 50%;
+    font-weight: 600;
+    font-size: 1.1rem;
+}

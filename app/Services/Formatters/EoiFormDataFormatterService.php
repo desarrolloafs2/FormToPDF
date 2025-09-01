@@ -2,112 +2,198 @@
 
 namespace App\Services\Formatters;
 
-use Carbon\Carbon;
 use App\Services\Contracts\PdfFormFormatterInterface;
+use App\Services\PdfFieldsResolverService;
 use Log;
 
 class EoiFormDataFormatterService implements PdfFormFormatterInterface
 {
+    private PdfFieldsResolverService $resolver;
+    private string $layoutPath;
+
+    public function __construct(PdfFieldsResolverService $resolver)
+    {
+        $this->resolver = $resolver;
+        $this->layoutPath = storage_path('app/' . config('pdf.types.eoi.layout'));
+    }
+
     public function format(array $participant, ?array $companyInfo = null): array
     {
         $data = [];
 
-        // DATOS PERSONALES
-        $data['Cuadro de texto 1_4'] = $participant['firstSurname'] ?? '';
-        $data['Cuadro de texto 1'] = $participant['apellido2'] ?? '';
-        $data['Cuadro de texto 1_2'] = $participant['name'] ?? '';
-        $data['Cuadro de lista 1'] = $participant['tipo_documento'] ?? '';
-        $data['Cuadro de texto 1_3'] = $participant['nif'] ?? '';
-        $data['Cuadro de lista 1_2'] = $participant['sexo'] ?? '';
-        $data['Campo de fecha 1'] = $participant['fecha_nacimiento'] ?? '';
-
-        $data['Cuadro de texto 1_7'] = $participant['direccion'] ?? '';
-        $data['Cuadro de texto 1_5'] = $participant['ciudad'] ?? '';
-        $data['Cuadro de texto 1_6'] = $participant['codigo_postal'] ?? '';
-
-        $data['Cuadro de lista 1_3'] = $participant['provincia'] ?? '';
-        $data['Cuadro de lista 1_4'] = $participant['ccaa'] ?? '';
-        $data['Campo num#C3#A9rico 1'] = $participant['telefono'] ?? '';
-        $data['Cuadro de texto 1_8'] = $participant['email'] ?? '';
-
-        // RESIDE EN LOCALIDAD < 5000
-        $data['Botón de opción 1'] = $participant['reside_en_localidad_menor_5000'] ?? 'Off';
-
-        // DISCAPACIDAD
-        $data['Botón de opción 2'] = $participant['discapacidad'] ?? 'Off';
-
-        // NIVEL DE ESTUDIOS
-        $data['Cuadro de lista 1_5'] = $participant['nivel_estudios'] ?? '';
-
-        // TITULACIÓN
-        $data['Cuadro de texto 1_9'] = $participant['titulacion'] ?? '';
-
-        // SITUACIÓN ACTUAL (radio)
-        $data['Botón de opción 3'] = $this->isChecked($participant, 'situacion_actual', 'Directivo en una pyme');
-
-        // EMPRESA
-        $data['Cuadro de texto 1_10'] = $participant['empresa'] ?? '';
-        $data['Cuadro de texto 1_11'] = $participant['nif_empresa'] ?? '';
-        $data['Cuadro de lista 1_6'] = $participant['actividad_empresa'] ?? '';
-        $data['Cuadro de lista 1_7'] = $participant['tamano_empresa'] ?? '';
-        $data['Cuadro de lista 1_8'] = $participant['province'] ?? '';
-        $data['Cuadro de lista 1_9'] = $participant['ccaa_empresa'] ?? '';
-        $data['Cuadro de lista 1_10'] = $participant['antiguedad_empresa'] ?? '';
-        $data['Cuadro de lista 1_11'] = $participant['facturacion'] ?? '';
-
-        // EMPRESA – PREGUNTAS ESPECIALES (radios)
-        $data['Botón de opción 4'] = $this->isChecked($participant, 'ambito_rural');
-        $data['Botón de opción 5'] = $this->isChecked($participant, 'politicas_sostenibilidad');
-        $data['Botón de opción 6'] = $this->isChecked($participant, 'transformacion_digital');
-        $data['Botón de opción 7'] = $this->isChecked($participant, 'mujer_responsable');
-
-        $data['Cuadro de lista 1_12'] = $participant['porcentaje_mujeres'] ?? '';
-
-        // CONSENTIMIENTOS (checkboxes)
-        $data['Casilla 1'] = $this->checkIfYes($participant, 'trabaja_en_pyme');
-        $data['Casilla 1_2'] = $this->checkIfYes($participant, 'info_veraz');
-        $data['Casilla 1_3'] = $this->checkIfYes($participant, 'no_duplicado');
-        $data['Casilla 1_4'] = $this->checkIfYes($participant, 'sin_conflicto');
-        $data['Casilla 1_5'] = $this->checkIfYes($participant, 'autorizo_datos');
-        $data['Casilla 1_6'] = $this->checkIfYes($participant, 'autorizo_discapacidad');
-        $data['Casilla 1_7'] = $this->checkIfYes($participant, 'condiciones');
-
-        // FECHA Y LUGAR
-        $data['Cuadro de texto 1_12'] = $participant['lugar'] ?? '';
-
-
-        // Día, mes, año en los cuadros de lista
-        try {
-            if (!empty($participant['fecha'])) {
-                $fecha = Carbon::parse($participant['fecha']);
-                $data['a'] = $fecha->format('d');
-                $data['de'] = ucfirst($fecha->translatedFormat('F'));
+        // === CAMPOS PERSONALES ===
+        foreach (config('eoi.personal_fields') as $pdfField => $formKey) {
+            $data[$pdfField] = $participant[$formKey] ?? '';
+            if ($data[$pdfField]) {
+                $data[$pdfField] = $this->capitalize($data[$pdfField]);
             }
-        } catch (\Exception $e) {
-            Log::error('Error parsing date: ' . $e->getMessage());
         }
+
+        // === DISCAPACIDAD ===
+        $discapacidadField = config('eoi.discapacidad');
+        $discapacidadOptions = $this->resolver->getOptions($this->layoutPath, $discapacidadField);
+        $yesValue = $this->getYesOption($discapacidadOptions);
+        $data[$discapacidadField] = !empty($participant['discapacidad']) ? $yesValue : 'Off';
+
+        // === CAMPOS DE EMPRESA ===
+        foreach (config('eoi.company_fields') as $pdfField => $formKey) {
+            $data[$pdfField] = $participant[$formKey] ?? '';
+            if ($data[$pdfField]) {
+                $data[$pdfField] = $this->capitalize($data[$pdfField]);
+            }
+        }
+
+        // === CHECKBOXES / RADIOS ===
+        foreach (config('eoi.option_groups') as $group) {
+            $groupMap = config("eoi.$group");
+            $rawValues = $participant[$group] ?? [];
+            $rawValues = is_array($rawValues) ? $rawValues : [$rawValues];
+
+            // Normalización y mapeo
+            $normalizedValues = array_map(fn($v) => $this->normalizeValue($v, $group), $rawValues);
+            $mapping = config("eoi.mappings.$group") ?? [];
+            $mappedValues = array_map(fn($v) => $mapping[$v] ?? $v, $normalizedValues);
+
+            foreach ($groupMap as $option => $pdfField) {
+                $pdfOptions = $this->resolver->getOptions($this->layoutPath, $pdfField);
+
+                if ($this->isYesNoPair($group)) {
+                    $data[$pdfField] = $this->handleYesNoPair($group, $pdfField, $mappedValues);
+                } elseif ($this->isRadioGroup($group)) {
+                    $data[$pdfField] = $this->handleRadioGroup($group, $option, $pdfField, $mappedValues);
+                } else {
+                    $data[$pdfField] = $this->handleMappedOption($pdfOptions, $mappedValues);
+                }
+
+                Log::info("Checkbox/Radio: $pdfField (opción '$option') => {$data[$pdfField]} 
+(valor participante: " . implode(',', $rawValues) . " / mapped: " . implode(',', $mappedValues) . " / opcionesPDF: " . implode(',', $pdfOptions) . ")");
+            }
+        }
+
+        // === CONSENTIMIENTOS ===
+        foreach (config('eoi.consentimientos') as $formKey => $pdfField) {
+            $pdfOptions = $this->resolver->getOptions($this->layoutPath, $pdfField);
+            $data[$pdfField] = !empty($participant[$formKey]) ? $this->getYesOption($pdfOptions) : 'Off';
+        }
+
+        // === LUGAR Y FECHA ===
+        $data[config('eoi.lugar')] = isset($participant['lugar']) ? $this->capitalize($participant['lugar']) : '';
+        $data[config('eoi.fecha')] = $participant['fecha'] ?? '';
 
         return $data;
     }
 
-    private function isChecked(array $data, string $field, string $expected = 'Sí'): string
+    // ========================== Helper Functions ==========================
+
+    private function capitalize(string $value): string
     {
-        return ($data[$field] ?? '') === $expected ? 'Sí' : '';
+        return mb_convert_case(mb_strtolower($value, 'UTF-8'), MB_CASE_TITLE, 'UTF-8');
     }
 
-    private function setRadioGroup(array $participant, string $fieldName, string $pdfYes, string $pdfNo): array
+    private function normalizeValue($value, string $group): ?string
     {
-        $value = $participant[$fieldName] ?? null;
+        if ($value === null) return null;
 
-        return [
-            $pdfYes => $value === '1' ? '1' : 'Off',
-            $pdfNo => $value === '2' ? '2' : 'Off',
-        ];
+        // Radios / selects con múltiples opciones -> no tocar números ni textos
+        if ($this->isRadioGroup($group)) {
+            return trim((string) $value);
+        }
+
+        // Pares sí/no -> sí convertir
+        $val = strtolower(trim((string) $value));
+
+        return match ($val) {
+            '1', 'sí', 'si', 'on' => 'sí',
+            '0', '2', 'no'        => 'no',
+            ''                    => null,
+            default               => $value,
+        };
     }
 
-    private function checkIfYes(array $participant, string $field): string
+    private function normalizeOption($value): string
     {
-        return !empty($participant[$field]) ? 'Yes' : 'Off';
+        return strtolower(trim(html_entity_decode((string) $value)));
     }
 
+    private function getYesOption(array $options): string
+    {
+        foreach ($options as $opt) {
+            if ($opt !== 'Off') return html_entity_decode($opt, ENT_QUOTES, 'UTF-8');
+        }
+        return 'Sí';
+    }
+
+    private function isYesNoPair(string $group): bool
+    {
+        return in_array($group, [
+            'ambito_rural',
+            'politicas_sostenibilidad',
+            'transformacion_digital',
+            'mujer_responsable',
+            'reside_en_localidad_menor_5000',
+        ]);
+    }
+
+    private function isRadioGroup(string $group): bool
+    {
+        return in_array($group, [
+            'nivel_estudios',
+            'situacion_actual',
+            'facturacion',
+            'tamano_empresa',
+            'antiguedad_empresa',
+            'porcentaje_mujeres',
+            'relacion_empresa',
+        ]);
+    }
+
+    private function handleYesNoPair(string $group, string $pdfField, array $mappedValues): string
+    {
+        $groupConfig = config("eoi.$group");
+        $yesOptionField = $groupConfig['sí'] ?? null;
+        $noOptionField = $groupConfig['no'] ?? null;
+
+        $value = $mappedValues[0] ?? null;
+        if (!$value) return 'Off';
+
+        if ($pdfField === $yesOptionField && $value === 'sí') return 'Sí';
+        if ($pdfField === $noOptionField && $value === 'no') return 'Sí';
+
+        return 'Off';
+    }
+
+    private function handleRadioGroup(string $group, string $option, string $pdfField, array $mappedValues): string
+    {
+        $value = $mappedValues[0] ?? null;
+        if (!$value) return 'Off';
+
+        // Normalizamos para comparar
+        $normalizedValue = $this->normalizeOption($value);
+        $normalizedOption = $this->normalizeOption($option);
+
+        return $normalizedValue === $normalizedOption ? 'Sí' : 'Off';
+    }
+
+    private function handleMappedOption(array $pdfOptions, array $mappedValues): string
+    {
+        // Decodificar opciones PDF
+        $decodedPdfOptions = array_map(fn($v) => html_entity_decode($v, ENT_QUOTES, 'UTF-8'), $pdfOptions);
+
+        // Normalizamos para comparar
+        $normalizedMapped = array_map([$this, 'normalizeOption'], $mappedValues);
+        $normalizedPdf = array_map([$this, 'normalizeOption'], $decodedPdfOptions);
+
+        // Recorremos las opciones del PDF
+        foreach ($decodedPdfOptions as $i => $opt) {
+            if ($opt === 'Off') {
+                continue;
+            }
+
+            if (in_array($normalizedPdf[$i], $normalizedMapped, true)) {
+                return $opt;
+            }
+        }
+
+        return 'Off';
+    }
 }

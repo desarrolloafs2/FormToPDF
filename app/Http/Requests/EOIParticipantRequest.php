@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
 use App\Rules\DniNieRule;
 use App\Rules\CifOrDniNieRule;
 use App\Traits\LongTextRules;
@@ -20,63 +22,63 @@ class EoiParticipantRequest extends FormRequest
     {
         return [
             // Datos personales
-            'firstSurname'      => $this->textRule(5, 100),
-            'apellido2'         => $this->textRule(5, 100),
-            'name'              => $this->textRule(5, 100),
-            'tipo_documento'    => ['required', 'in:DNI,NIE,PASAPORTE'],
-            'nif'               => ['required', new DniNieRule()],
-            'sexo'              => ['required', 'in:Hombre,Mujer,Otro'],
-            'fecha_nacimiento'  => ['required', 'date', 'before:today'],
-            'direccion'         => $this->textRule(5, 255),
-            'ciudad'            => $this->textRule(5, 100),
-            'codigo_postal'     => ['required', 'regex:/^(0[1-9]|[1-4][0-9]|5[0-2])\d{3}$/'],
-            'provincia'         => $this->textRule(5, 100),
-            'ccaa'              => $this->textRule(5, 100),
-            'telefono'          => ['required', 'regex:/^(?:\+34|34)?\s?(6|7|8|9)\d{2}[\s-]?\d{3}[\s-]?\d{3}$/'],
-            'email'             => ['required', 'email', 'max:150'],
+            'firstSurname' => $this->textRule(3, 100),
+            'apellido2' => $this->textRule(3, 100),
+            'name' => $this->textRule(3, 100),
+            'tipo_documento' => ['required', 'in:NIF,NIE,PASS'],
+            'nif' => ['required', new DniNieRule()],
+            'sexo' => ['required', 'in:M,F,NB'],
+            'fecha_nacimiento' => ['required', 'date',  'before_or_equal:today'],
+            'direccion' => $this->textRule(3, 255),
+            'ciudad' => $this->textRule(3, 100),
+            'codigo_postal' => ['required', 'regex:/^(0[1-9]|[1-4][0-9]|5[0-2])\d{3}$/'],
+            'provincia' => $this->textRule(3, 100),
+            'ccaa' => $this->textRule(3, 100),
+            'telefono' => ['required', 'regex:/^(?:\+34|34)?\s?(6|7|8|9)\d{2}[\s-]?\d{3}[\s-]?\d{3}$/'],
+            'email' => ['required', 'email', 'max:150'],
 
             // Datos profesionales
-            'empresa'               => $this->textRule(5, 255),
-            'nif_empresa'           => ['required', new CifOrDniNieRule()],
-            'actividad_empresa'     => $this->textRule(5, 255),
-            'tamano_empresa'        => $this->textRule(1, 100), // min 1 si es select
-            'province'              => $this->textRule(1, 100),
-            'ccaa_empresa'          => $this->textRule(1, 100),
-            'antiguedad_empresa'    => $this->textRule(1, 50),
-            'facturacion'           => $this->textRule(1, 100),
-            'ambito_rural'          => ['required', 'in:1,2'],
-            'politicas_sostenibilidad' => ['required', 'in:1,2'],
-            'transformacion_digital'   => ['required', 'in:1,2'],
-            'mujer_responsable'     => ['required', 'in:1,2'],
-            'porcentaje_mujeres'    => ['required'],
+            'empresa' => $this->textRule(3, 255),
+            'nif_empresa' => ['required', new CifOrDniNieRule()],
+            'actividad_empresa' => ['required', 'string', 'min:5', 'max:255'],
+            'tamano_empresa' => ['required'],
+            'province' => ['required'],
+            'ccaa_empresa' => ['required'],
+            'antiguedad_empresa' => ['required'],
+            'facturacion' => ['required'],
+            'ambito_rural' => ['required'],
+            'politicas_sostenibilidad' => ['required'],
+            'transformacion_digital' => ['required'],
+            'mujer_responsable' => ['required'],
+            'porcentaje_mujeres' => ['required'],
 
             // Campos adicionales
             'reside_en_localidad_menor_5000' => ['required'],
-            'discapacidad'       => ['required'],
-            'nivel_estudios'     => ['required'],
-            'titulacion'         => $this->textRule(5, 150),
-            'situacion_actual'   => ['required'],
+            'discapacidad' => ['nullable'],
+            'nivel_estudios' => ['required'],
+            'titulacion' => $this->textRule(5, 150),
+            'situacion_actual' => ['required'],
 
             // Declaraciones (checkbox)
-            'trabaja_en_pyme'    => ['accepted'],
-            'info_veraz'         => ['accepted'],
-            'no_duplicado'       => ['accepted'],
-            'sin_conflicto'      => ['accepted'],
-            'autorizo_datos'     => ['accepted'],
-            'condiciones'        => ['accepted'],
-            'autorizo_discapacidad' => ['required'],
+            'trabaja_en_pyme' => ['accepted'],
+            'info_veraz' => ['accepted'],
+            'no_duplicado' => ['accepted'],
+            'sin_conflicto' => ['accepted'],
+            'autorizo_datos' => ['accepted'],
+            'condiciones' => ['accepted'],
+            'autorizo_discapacidad' => ['nullable'],
 
             // Firma y lugar
-            'lugar'              => $this->textRule(5, 100),
-            'fecha'              => ['required', 'date'],
+            'lugar' => $this->textRule(3, 100),
+            'fecha' => ['required', 'date', 'before_or_equal:today'],
 
             // Archivos
-            'dni_file'               => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'contrato_file'          => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'declaracion_responsable'=> ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'dni_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'contrato_file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'declaracion_responsable' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
 
             // Firma digital o imagen
-            'signature'          => ['required']
+            'signature' => ['required']
         ];
     }
 
@@ -124,7 +126,7 @@ class EoiParticipantRequest extends FormRequest
             'autorizo_datos' => 'autorización de datos',
             'lugar' => 'lugar',
             'fecha' => 'fecha',
-            'firma' => 'firma del participante',
+            'signature' => 'firma del participante',
             'dni_file' => 'copia del documento de identidad',
             'contrato_file' => 'documento laboral',
             'declaracion_responsable' => 'declaración responsable',

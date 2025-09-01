@@ -1,0 +1,180 @@
+/* =======================
+   VARIABLES CSS
+======================= */
+:root {
+    --primary-color: #28a745;
+    --primary-hover: #218838;
+    --text-color: #333;
+    --text-color-light: #444;
+    --border-radius: 8px;
+    --input-padding: 10px 14px;
+    --transition-speed: 0.3s;
+    --section-title-font: 1.6rem;
+    --section-subtitle-font: 1.1rem;
+    --gap: 20px;
+}
+
+/* =======================
+   CONTENEDOR DEL FORMULARIO
+======================= */
+.form-container {
+    background: #fff;
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 50px;
+}
+
+/* =======================
+   TÍTULOS DE SECCIONES
+======================= */
+.form-section-title {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    margin: 40px 0;
+    width: 100%;
+    font-size: var(--section-title-font);
+    font-weight: 700;
+}
+
+.form-section-subtitle {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: calc(var(--border-radius) - 2px);
+    text-align: center;
+    margin: 30px auto;
+    width: 50%;
+    font-weight: 600;
+    font-size: var(--section-subtitle-font);
+}
+
+/* =======================
+   INPUTS Y SELECTS
+======================= */
+.form-control,
+.form-select {
+    border-radius: var(--border-radius);
+    padding: var(--input-padding);
+    border: 1px solid #ccc;
+    transition: all 0.2s ease-in-out;
+    font-size: 0.95rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    outline: none;
+}
+
+/* =======================
+   LABELS
+======================= */
+/* Labels principales de inputs */
+label.form-label {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* Opciones de radios y checkboxes */
+.form-check-label {
+    margin-left: 6px;
+    font-weight: 400; /* normal */
+    color: var(--text-color-light);
+}
+
+/* =======================
+   BOTÓN SUBMIT
+======================= */
+.btn-submit {
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    transition: all var(--transition-speed) ease;
+    cursor: pointer;
+}
+
+.btn-submit:hover,
+.btn-submit:focus {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Botón responsive para móviles */
+@media (max-width: 576px) {
+    .btn-submit {
+        width: 100%;
+    }
+}
+
+/* =======================
+   GRUPOS Y MARGENES
+======================= */
+.form-group {
+    margin-bottom: var(--gap);
+}
+
+/* =======================
+   ESTADOS DE ERROR / VALIDACIÓN
+======================= */
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* =======================
+   SECCIONES COLAPSABLES
+======================= */
+/* Transición suave del contenido */
+.collapse-smooth {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+.collapse.show.collapse-smooth {
+    max-height: 1000px; /* suficiente para cualquier contenido */
+}
+
+/* Flecha SVG giratoria */
+.collapse-btn .collapse-icon {
+    transition: transform 0.3s ease;
+}
+
+button[aria-expanded="true"] .collapse-icon {
+    transform: rotate(180deg);
+}
+
+/* Ajuste hover/focus para el botón collapse */
+.collapse-btn:hover .collapse-icon,
+.collapse-btn:focus .collapse-icon {
+    color: var(--primary-color);
+}
+
+/* Contenido collapse con fondo y borde */
+.collapse {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+}
+
+/* Opciones de radio/check hover */
+.form-check-input:focus + .form-check-label,
+.form-check-input:hover + .form-check-label {
+    color: var(--text-color);
+    font-weight: 500;
+    cursor: pointer;
+}

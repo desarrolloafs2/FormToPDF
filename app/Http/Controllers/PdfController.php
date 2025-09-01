@@ -69,7 +69,7 @@ class PdfController extends Controller
             $coords['x'],
             $coords['y'],
             $coords['width'],
-            $coords['page']
+            null
         );
 
         if (!$signedPdfName) {

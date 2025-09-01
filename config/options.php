@@ -102,16 +102,15 @@ return [
     ],
 
     'dni' => [
-        'DNI',
+        'NIF',
         'NIE',
-        'Pasaporte',
-        'Otros'
+        'PASS'
     ],
 
     'sexo' => [
-        'Hombre',
-        'Mujer',
-        'Otro'
+        'M',
+        'F',
+        'NB'
     ],
 
     'idiomas' => [
@@ -134,9 +133,10 @@ return [
         'Medio',
         'Avanzado'
     ],
-    'situacion_laboral' => [
-        'desempleado' => 'Trabajador/a desempleado/a',
-        'ocupado' => 'Trabajador/a ocupado/a',
+
+    'situacion_actual' => [
+        1 => 'Empleado/a por cuenta ajena',
+        2 => 'Autónomo/a - empresario/a',
     ],
 
     // Categorías (checkboxes)
@@ -215,5 +215,51 @@ return [
         'otros' => 'Otros',
     ],
 
+    'cine' => [
+        'CINE 1: Enseñanza primaria' => 'CINE 1: Enseñanza primaria',
+        'CINE 2: Primer Ciclo de Enseñanza Secundaria: ESO o equivalente'
+        => 'CINE 2: Primer Ciclo de Enseñanza Secundaria: ESO o equivalente',
+        'CINE 3: Segundo Ciclo de Enseñanza Secundaria: FP Básica, FP Grado Medio, Bachillerato'
+        => 'CINE 3: Segundo Ciclo de Enseñanza Secundaria: FP Básica, FP Grado Medio, Bachillerato',
+        'CINE 4: Enseñanza Postsecundaria no Terciaria '
+        => 'CINE 4: Enseñanza Postsecundaria no Terciaria',
+        'CINE 5 a 7: Estudios Universitarios y FP Grado Superior o equivalente'
+        => 'CINE 5 a 7: Estudios Universitarios y FP Grado Superior o equivalente',
+        'Ninguna de las anteriores' => 'Ninguna de las anteriores',
+    ],
 
-];
+    'tamano_empresa' => [
+        '1 - 9 trabajadores',
+        '10 - 49 trabajadores',
+        '50 - 249 trabajadores',
+    ],
+
+    'relacion_empresa' => [
+        1 => 'Directivo/a miembro del Comité de Dirección',
+        2 => 'Relación con el capital de la empresa (socio, hijo…)',
+        3 => 'Responsable de un área/departamento de la empresa',
+        4 => 'Trabajador/a de la empresa',
+    ],
+
+    'antiguedad_empresa' => [
+        'Últimos 5 años',
+        'De 5 a 10 años',
+        '+10 años',
+    ],
+
+    
+    'facturacion' => [
+        ' 0 - 500.000€',
+        '500.000 - 1M€',
+        ' 1 - 2 M€',
+        ' 2 - 4 M€',
+        '+ 4 M€',
+    ],
+
+    'porcentaje_mujeres' => [
+        'Inferior a 30%',
+        'Entre 30% y 50%',
+        'Superior al 50%',
+    ],
+]
+;

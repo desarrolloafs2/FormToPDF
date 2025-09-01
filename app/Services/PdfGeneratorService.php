@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use mikehaertl\pdftk\Pdf;
+use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\FpdiException;
 use FPDF;
 
 use App\Traits\GeneratesPdfFilename;
@@ -62,14 +64,13 @@ class PdfGeneratorService
 
         return $fileName;
     }
-
     public function addSignatureToPdf(
         string $pdfName,
         string $signatureImageName,
         float $x,
         float $y,
         float $width,
-        int $pageToSign = 1
+        ?int $pageToSign = null // 👈 lo marcamos como nullable
     ): ?string {
         $inputPdfPath = $this->generatedPath . $pdfName;
         $outputPdfName = 'signed-' . $pdfName;
@@ -108,6 +109,11 @@ class PdfGeneratorService
 
             $pageCount = (int) $matches[1];
 
+            // 👉 Si no se pasa la página → firmamos en la última
+            if ($pageToSign === null) {
+                $pageToSign = $pageCount;
+            }
+
             $overlay = new FPDF('P', 'mm', 'A4');
             for ($i = 1; $i <= $pageCount; $i++) {
                 $overlay->AddPage();
@@ -143,6 +149,7 @@ class PdfGeneratorService
         }
     }
 
+
     public function deletePdf(string $type, string $name): void
     {
         $path = "pdf/{$type}/{$name}";
@@ -152,5 +159,11 @@ class PdfGeneratorService
         } else {
             Log::warning("Attempted to delete non-existing PDF: $path");
         }
+    }
+
+    public function getLastPage(string $pdfPath): int
+    {
+        $pdf = new Fpdi();
+        return $pdf->setSourceFile($pdfPath); // Devuelve el total de páginas
     }
 }

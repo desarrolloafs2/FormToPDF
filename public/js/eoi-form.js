@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnText = btn?.querySelector('.btn-text');
     const spinner = btn?.querySelector('.spinner');
 
-    // Siempre reactivar botón al cargar
+    // Reactivar botón al cargar
     if (btn) {
         btn.disabled = false;
         if (btnText) btnText.textContent = 'Enviar';
@@ -15,88 +15,139 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const validator = new JustValidate(`#${form.id}`);
 
-    // Función avanzada de safeAddField
+    const fieldsRules = {
+        // Datos personales
+        firstSurname: [{ rule: 'required', errorMessage: 'El primer apellido es obligatorio' }],
+        apellido2: [{ rule: 'required', errorMessage: 'El segundo apellido es obligatorio' }],
+        name: [{ rule: 'required', errorMessage: 'El nombre es obligatorio' }],
+        tipo_documento: [{ rule: 'required', errorMessage: 'Selecciona un tipo de documento' }],
+        nif: [
+            { rule: 'required', errorMessage: 'El NIF es obligatorio' },
+            {
+                validator: value => {
+                    const tipo = document.getElementById('tipo_documento')?.value;
+                    return (tipo === 'NIF' || tipo === 'NIE' || tipo === 'PASS') ? isValidDniNie(value) : true;
+                },
+                errorMessage: 'Documento inválido'
+            }
+        ],
+        sexo: [{ rule: 'required', errorMessage: 'Selecciona tu sexo' }],
+        fecha_nacimiento: [
+            { rule: 'required', errorMessage: 'Fecha de nacimiento obligatoria' },
+            {
+                validator: value => {
+                    const inputDate = new Date(value);
+                    const today = new Date();
+                    inputDate.setHours(0, 0, 0, 0);
+                    today.setHours(0, 0, 0, 0);
+                    return inputDate <= today;
+                },
+                errorMessage: 'La fecha no puede ser posterior al día de hoy'
+            }
+        ],
+
+        fecha: [
+            { rule: 'required', errorMessage: 'Fecha obligatoria' },
+            {
+                validator: value => {
+                    const inputDate = new Date(value);
+                    const today = new Date();
+                    inputDate.setHours(0, 0, 0, 0);
+                    today.setHours(0, 0, 0, 0);
+                    return inputDate <= today;
+                },
+                errorMessage: 'La fecha no puede ser posterior al día de hoy'
+            }
+        ],
+        direccion: [{ rule: 'required', errorMessage: 'Dirección obligatoria' }],
+        ciudad: [{ rule: 'required', errorMessage: 'Ciudad obligatoria' }],
+        codigo_postal: [
+            { rule: 'required', errorMessage: 'Código postal obligatorio' },
+            { validator: value => /^(0[1-9]|[1-4][0-9]|5[0-2])\d{3}$/.test(value), errorMessage: 'Código postal inválido' }
+        ],
+        provincia: [{ rule: 'required', errorMessage: 'Provincia obligatoria' }],
+        ccaa: [{ rule: 'required', errorMessage: 'Comunidad autónoma obligatoria' }],
+        telefono: [
+            { rule: 'required', errorMessage: 'Teléfono obligatorio' },
+            {
+                validator: value => /^(\+34|34)?\s?(6|7|8|9)\d{2}[\s-]?\d{3}[\s-]?\d{3}$/.test(value),
+                errorMessage: 'Formato de teléfono inválido'
+            }
+        ],
+        email: [
+            { rule: 'required', errorMessage: 'Correo obligatorio' },
+            { rule: 'email', errorMessage: 'Correo inválido' }
+        ],
+
+        // Empresa
+        empresa: [{ rule: 'required', errorMessage: 'Nombre de empresa obligatorio' }],
+        nif_empresa: [
+            { rule: 'required', errorMessage: 'NIF de empresa obligatorio' },
+            { validator: value => isValidCif(value), errorMessage: 'CIF inválido' }
+        ],
+        actividad_empresa: [{ rule: 'required', errorMessage: 'Actividad de la empresa obligatoria' }],
+        tamano_empresa: [{ rule: 'required', errorMessage: 'Selecciona tamaño de empresa' }],
+        province: [{ rule: 'required', errorMessage: 'Provincia obligatoria' }],
+        ccaa_empresa: [{ rule: 'required', errorMessage: 'CCAA obligatoria' }],
+        antiguedad_empresa: [{ rule: 'required', errorMessage: 'Selecciona antigüedad de empresa' }],
+        facturacion: [{ rule: 'required', errorMessage: 'Facturación obligatoria' }],
+        ambito_rural: [{ rule: 'required', errorMessage: 'Debes indicar ámbito rural' }],
+        politicas_sostenibilidad: [{ rule: 'required', errorMessage: 'Debes indicar políticas de sostenibilidad' }],
+        transformacion_digital: [{ rule: 'required', errorMessage: 'Debes indicar transformación digital' }],
+        mujer_responsable: [{ rule: 'required', errorMessage: 'Debes indicar responsable mujer' }],
+        porcentaje_mujeres: [{ rule: 'required', errorMessage: 'Porcentaje de mujeres obligatorio' }],
+
+        // Consentimientos (checkboxes)
+        trabaja_en_pyme: [{ rule: 'required', errorMessage: 'Debes aceptar esta declaración' }],
+        info_veraz: [{ rule: 'required', errorMessage: 'Debes aceptar esta declaración' }],
+        no_duplicado: [{ rule: 'required', errorMessage: 'Debes aceptar esta declaración' }],
+        sin_conflicto: [{ rule: 'required', errorMessage: 'Debes aceptar esta declaración' }],
+        autorizo_datos: [{ rule: 'required', errorMessage: 'Debes aceptar el tratamiento de datos' }],
+        autorizo_discapacidad: [{ rule: 'required', errorMessage: 'Debes indicar aceptación' }],
+        condiciones: [{ rule: 'required', errorMessage: 'Debes aceptar el condicionado' }],
+
+        // Firma y lugar
+        lugar: [{ rule: 'required', errorMessage: 'Lugar obligatorio' }],
+        signature: [{ rule: 'required', errorMessage: 'Debes firmar el formulario' }]
+    };
+
     function safeAddField(field, rules) {
-        if (!Array.isArray(rules) || rules.length === 0) {
-            rules = [{ rule: 'required', errorMessage: 'Campo obligatorio' }];
-        }
-
         let selector;
-
-        if (field.type === 'radio' || field.type === 'checkbox') {
+        if (field.type === 'checkbox') {
             selector = `[name="${field.name}"]`;
-            if (!rules.some(r => r.validator)) {
-                rules.push({
-                    validator: () => {
-                        const checked = form.querySelectorAll(selector + ':checked');
-                        return checked.length > 0;
-                    },
-                    errorMessage: 'Debes seleccionar al menos una opción'
-                });
+
+            // Solo si hay reglas definidas explícitamente
+            if (rules.length > 0) {
+                // Si no tiene validador propio, añadimos uno genérico (mínimo 1 check)
+                if (!rules.some(r => r.validator)) {
+                    rules.push({
+                        validator: () => {
+                            const checked = form.querySelectorAll(selector + ':checked');
+                            return checked.length > 0;
+                        },
+                        errorMessage: `Debes seleccionar al menos una opción para ${field.name}`
+                    });
+                }
+
+                validator.addField(selector, rules);
             }
         } else {
             selector = field.id ? `#${field.id}` : `[name="${field.name}"]`;
-        }
 
-        if (document.querySelector(selector)) {
-            validator.addField(selector, rules);
-        } else {
-            console.warn(`⚠ Campo no encontrado: ${selector}`);
+            if (rules.length > 0) {
+                validator.addField(selector, rules);
+            }
         }
     }
 
-    // Recorremos todos los inputs, selects y textareas
+    // Iteramos todos los inputs, selects, textareas
     const allFields = form.querySelectorAll('input, select, textarea');
     allFields.forEach(field => {
-        let rules = [];
-
-        // Por defecto todos son required, salvo checkboxes/radios que se gestionan aparte
-        if (field.type !== 'checkbox' && field.type !== 'radio') {
-            rules.push({ rule: 'required', errorMessage: 'Campo obligatorio' });
-        }
-
-        // Validaciones específicas por id
-        switch (field.id) {
-            case 'nif':
-                rules.push({
-                    validator: (value) => {
-                        const tipo = document.getElementById('tipo_documento')?.value;
-                        if (tipo === 'DNI' || tipo === 'NIE') return isValidDniNie(value);
-                        return true;
-                    },
-                    errorMessage: 'Documento inválido',
-                });
-                break;
-
-            case 'telefono':
-                rules.push({
-                    validator: value => /^(\+34|34)?\s?(6|7|8|9)\d{2}[\s-]?\d{3}[\s-]?\d{3}$/.test(value),
-                    errorMessage: 'Formato de teléfono inválido',
-                });
-                break;
-
-            case 'email':
-                rules.push({ rule: 'email', errorMessage: 'Formato de email inválido' });
-                break;
-
-            case 'nif_empresa':
-                rules.push({
-                    validator: value => isValidCif(value),
-                    errorMessage: 'CIF inválido',
-                });
-                break;
-
-            case 'condiciones':
-                rules = [{
-                    validator: () => field.checked,
-                    errorMessage: 'Debes aceptar el condicionado',
-                }];
-                break;
-        }
-
+        const rules = fieldsRules[field.id] || fieldsRules[field.name] || [];
         safeAddField(field, rules);
     });
 
+    // On success
     validator.onSuccess(() => {
         if (btn) {
             btn.disabled = true;
@@ -104,38 +155,30 @@ document.addEventListener('DOMContentLoaded', function () {
             if (spinner) spinner.style.display = 'inline-block';
         }
 
-        // Lógica de firma
+        // Firma digital
         const canvas = document.getElementById("signatureCanvas");
         const signatureInput = document.getElementById("signatureInput");
         if (canvas && signatureInput && typeof SignaturePad !== 'undefined') {
             const signaturePad = new SignaturePad(canvas);
-            if (!signaturePad.isEmpty()) {
-                signatureInput.value = signaturePad.toDataURL();
-            }
+            if (!signaturePad.isEmpty()) signatureInput.value = signaturePad.toDataURL();
         }
 
         form.submit();
     });
 });
 
-// Validadores DNI/NIE y CIF
+// Validadores auxiliares
 function isValidDniNie(value) {
     const val = value.trim().toUpperCase();
     const letters = 'TRWAGMYFPDXBNJZSQVHLCKE';
-
     const dni = /^\d{8}[A-Z]$/;
-    if (dni.test(val)) {
-        const num = parseInt(val.slice(0, 8), 10);
-        return letters[num % 23] === val[8];
-    }
-
     const nie = /^[XYZ]\d{7}[A-Z]$/;
+
+    if (dni.test(val)) return letters[parseInt(val.slice(0, 8), 10) % 23] === val[8];
     if (nie.test(val)) {
         const prefix = { X: '0', Y: '1', Z: '2' }[val[0]];
-        const num = parseInt(prefix + val.slice(1, 8), 10);
-        return letters[num % 23] === val[8];
+        return letters[parseInt(prefix + val.slice(1, 8), 10) % 23] === val[8];
     }
-
     return false;
 }
 
@@ -146,16 +189,14 @@ function isValidCif(value) {
     const control = cif[cif.length - 1];
     const digits = cif.slice(1, -1);
     const letters = 'JABCDEFGHI';
-
     let sumA = 0, sumB = 0;
+
     for (let i = 0; i < digits.length; i++) {
         const n = parseInt(digits[i], 10);
         if (i % 2 === 0) {
             const prod = n * 2;
             sumA += Math.floor(prod / 10) + (prod % 10);
-        } else {
-            sumB += n;
-        }
+        } else sumB += n;
     }
 
     const total = sumA + sumB;
