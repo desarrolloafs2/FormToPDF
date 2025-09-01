@@ -92,7 +92,8 @@ class EoiFormDataFormatterService implements PdfFormFormatterInterface
 
     private function normalizeValue($value, string $group): ?string
     {
-        if ($value === null) return null;
+        if ($value === null)
+            return null;
 
         // Radios / selects con múltiples opciones -> no tocar números ni textos
         if ($this->isRadioGroup($group)) {
@@ -104,9 +105,9 @@ class EoiFormDataFormatterService implements PdfFormFormatterInterface
 
         return match ($val) {
             '1', 'sí', 'si', 'on' => 'sí',
-            '0', '2', 'no'        => 'no',
-            ''                    => null,
-            default               => $value,
+            '0', '2', 'no' => 'no',
+            '' => null,
+            default => $value,
         };
     }
 
@@ -118,7 +119,8 @@ class EoiFormDataFormatterService implements PdfFormFormatterInterface
     private function getYesOption(array $options): string
     {
         foreach ($options as $opt) {
-            if ($opt !== 'Off') return html_entity_decode($opt, ENT_QUOTES, 'UTF-8');
+            if ($opt !== 'Off')
+                return html_entity_decode($opt, ENT_QUOTES, 'UTF-8');
         }
         return 'Sí';
     }
@@ -154,10 +156,13 @@ class EoiFormDataFormatterService implements PdfFormFormatterInterface
         $noOptionField = $groupConfig['no'] ?? null;
 
         $value = $mappedValues[0] ?? null;
-        if (!$value) return 'Off';
+        if (!$value)
+            return 'Off';
 
-        if ($pdfField === $yesOptionField && $value === 'sí') return 'Sí';
-        if ($pdfField === $noOptionField && $value === 'no') return 'Sí';
+        if ($pdfField === $yesOptionField && $value === 'sí')
+            return 'Sí';
+        if ($pdfField === $noOptionField && $value === 'no')
+            return 'Sí';
 
         return 'Off';
     }
@@ -165,7 +170,8 @@ class EoiFormDataFormatterService implements PdfFormFormatterInterface
     private function handleRadioGroup(string $group, string $option, string $pdfField, array $mappedValues): string
     {
         $value = $mappedValues[0] ?? null;
-        if (!$value) return 'Off';
+        if (!$value)
+            return 'Off';
 
         // Normalizamos para comparar
         $normalizedValue = $this->normalizeOption($value);

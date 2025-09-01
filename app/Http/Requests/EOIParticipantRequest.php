@@ -58,6 +58,7 @@ class EoiParticipantRequest extends FormRequest
             'nivel_estudios' => ['required'],
             'titulacion' => $this->textRule(5, 150),
             'situacion_actual' => ['required'],
+            'relacion_empresa' => ['required'],
 
             // Declaraciones (checkbox)
             'trabaja_en_pyme' => ['accepted'],
@@ -119,6 +120,7 @@ class EoiParticipantRequest extends FormRequest
             'nivel_estudios' => 'nivel de estudios finalizados',
             'titulacion' => 'titulación',
             'situacion_actual' => 'situación actual',
+            'relacion_empresa' => 'relación con la empresa',
             'trabaja_en_pyme' => 'declaración de empleo en pyme',
             'info_veraz' => 'veracidad de la información',
             'no_duplicado' => 'no duplicidad de curso',
