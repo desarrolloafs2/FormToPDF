@@ -29,7 +29,7 @@ Route::get('{type}', function ($type) {
 
     return view($type, [
         'type' => $type,
-        'isForTesting' => true, // Relleno automático para pruebas
+        'isForTesting' => false, // Relleno automático para pruebas
     ]);
 });
 
