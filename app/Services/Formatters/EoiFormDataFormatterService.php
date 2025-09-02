@@ -65,8 +65,6 @@ class EoiFormDataFormatterService implements PdfFormFormatterInterface
                     $data[$pdfField] = $this->handleMappedOption($pdfOptions, $mappedValues);
                 }
 
-                Log::info("Checkbox/Radio: $pdfField (opción '$option') => {$data[$pdfField]} 
-(valor participante: " . implode(',', $rawValues) . " / mapped: " . implode(',', $mappedValues) . " / opcionesPDF: " . implode(',', $pdfOptions) . ")");
             }
         }
 
