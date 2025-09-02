@@ -139,6 +139,11 @@ return [
         2 => 'Autónomo/a - empresario/a',
     ],
 
+    'situacion_laboral' => [
+        'desempleado' => 'Trabajador/a desempleado/a',
+        'ocupado' => 'Trabajador/a ocupado/a',
+    ],
+
     // Categorías (checkboxes)
     'categorias' => [
         'categoria_direccion' => 'Dirección',
@@ -150,6 +155,15 @@ return [
         'categoria_tecnico' => 'Técnico/a',
         'trabajador_cualificado' => 'Trabajador/a cualificado/a',
         'trabajador_no_cualificado' => 'Trabajador/a de baja cualificación',
+    ],
+
+    'motivos' => [
+        'interes' => 'Interés',
+        'prestacion' => 'No perder la Prestación',
+        'cualificacion' => 'Mejorar la Cualificación',
+        'trabajo' => 'Encontrar Trabajo',
+        'sector' => 'Cambiar de Sector',
+        'otros' => 'Otros',
     ],
 
     // Situación desempleado (checkboxes)
@@ -247,7 +261,7 @@ return [
         '+10 años',
     ],
 
-    
+
     'facturacion' => [
         ' 0 - 500.000€',
         '500.000 - 1M€',

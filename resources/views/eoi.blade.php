@@ -3,7 +3,7 @@
 @section('title', 'Formulario de Inscripción')
 
 @section('content')
-    <h1 class="mb-4 text-center">Formulario de Inscripción</h1>
+    <h1 class="mb-4 text-center mt-5">Formulario de Inscripción</h1>
 
     <form id="{{ $type }}" class="my-5" method="POST" action="{{ url($type) }}" enctype="multipart/form-data">
         @csrf
