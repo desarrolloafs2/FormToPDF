@@ -82,7 +82,7 @@ class PdfController extends Controller
             return $this->errorRedirect();
         }
 
-        // Subida a SharePoint si no es local
+        if (!App::environment(['local', 'testing'])) {
             try {
                 SharepointUploaderService::uploadPdf(
                     $signedPdfName,
@@ -97,7 +97,12 @@ class PdfController extends Controller
                     'exception' => $e->getMessage(),
                 ]);
             }
-       
+        } else {
+            Log::info('SharePoint upload skipped due to local/testing environment.', [
+                'pdf' => $signedPdfName
+            ]);
+        }
+
         // Limpiar archivos temporales
         $pdfService->deletePdf('generated', $generatedPdfName);
         ImageManagerService::deleteImage($signatureImageName);

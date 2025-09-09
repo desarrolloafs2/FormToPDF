@@ -1,17 +1,13 @@
 @props([
-    'name',              // ej: 'motivos'
-    'configKey',         // ej: 'options.motivos'  (ruta en config)
-    'label' => null,     // título opcional
-    'columns' => 2,      // nº columnas
-    'selected' => [],    // valores preseleccionados (array)
+    'name',
+    'configKey',
+    'label' => null,
+    'columns' => 2,
+    'selected' => [],
 ])
 
 @php
     $options = config($configKey, []);
-    // Si viene como lista simple, la convertimos a ['valor' => 'valor']
-    if (array_is_list($options)) {
-        $options = array_combine($options, $options);
-    }
     $current = (array) old($name, $selected);
     $chunks = array_chunk($options, ceil(max(count($options),1) / max((int)$columns,1)), true);
 @endphp

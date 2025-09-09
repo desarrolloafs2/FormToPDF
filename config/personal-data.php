@@ -9,21 +9,21 @@ return [
     */
     'defaults' => [
         'firstSurname' => 'Pérez',
-        'secondSurname' => 'Gómez',
+        'apellido2' => 'Gómez',
         'name' => 'Juan',
         'tipo_documento' => 'NIF',
         'nif' => '54078631L',
         'sexo' => 'M',
         'birthdate' => '1990-01-01',
-        'ssnumber' => '',
+         'ssnumber' => '281234567891',
         'tipo_via' => 'Calle',
-        'address' => 'Calle Falsa 123',
-        'locality' => 'Madrid',
-        'postalCode' => '28001',
-        'province' => 'Madrid',
+        'direccion' => 'Calle Falsa 123',
+        'localidad' => 'Madrid',
+        'codigo_postal' => '28001',
+        'provincia' => 'Madrid',
         'ccaa' => 'Comunidad de Madrid',
-        'phone' => '600123456',
-        'phone2' => '828123456',
+        'telefono' => '600123456',
+        'telefono_fijo' => '828123456',
         'email' => 'juan@example.com',
     ],
 
@@ -64,16 +64,16 @@ return [
         [
             'fields' => [
                 ['name' => 'tipo_via', 'label' => 'Tipo de Vía', 'type' => 'select', 'options' => array_combine(config('options.via'), config('options.via')), 'required' => true, 'col' => 2],
-                ['name' => 'address', 'label' => 'Dirección', 'type' => 'text', 'required' => true, 'col' => 10],
+                ['name' => 'direccion', 'label' => 'Dirección', 'type' => 'text', 'required' => true, 'col' => 10],
             ],
         ],
 
         // Row 5: Localidad, Código Postal, Provincia y CCAA
         [
             'fields' => [
-                ['name' => 'locality', 'label' => 'Localidad', 'type' => 'text', 'required' => true, 'col' => 4],
-                ['name' => 'postalCode', 'label' => 'Código Postal', 'type' => 'number', 'required' => true, 'col' => 2, 'min' => 10000, 'max' => 52999],
-                ['name' => 'province', 'label' => 'Provincia', 'type' => 'select', 'options' => array_combine(config('options.provincias'), config('options.provincias')), 'required' => true, 'col' => 3],
+                ['name' => 'localidad', 'label' => 'Localidad', 'type' => 'text', 'required' => true, 'col' => 4],
+                ['name' => 'codigo_postal', 'label' => 'Código Postal', 'type' => 'number', 'required' => true, 'col' => 2, 'min' => 10000, 'max' => 52999],
+                ['name' => 'provincia', 'label' => 'Provincia', 'type' => 'select', 'options' => array_combine(config('options.provincias'), config('options.provincias')), 'required' => true, 'col' => 3],
                 ['name' => 'ccaa', 'label' => 'Comunidad Autónoma', 'type' => 'select', 'options' => array_combine(config('options.ccaa'), config('options.ccaa')), 'required' => true, 'col' => 3],
             ],
         ],
@@ -81,8 +81,8 @@ return [
         // Row 6: Teléfonos y correo
         [
             'fields' => [
-                ['name' => 'phone', 'label' => 'Teléfono Móvil', 'type' => 'tel', 'required' => true, 'col' => 3],
-                ['name' => 'phone2', 'label' => 'Teléfono Fijo', 'type' => 'tel', 'required' => false, 'col' => 3],
+                ['name' => 'telefono', 'label' => 'Teléfono Móvil', 'type' => 'tel', 'required' => true, 'col' => 3],
+                ['name' => 'telefono_fijo', 'label' => 'Teléfono Fijo', 'type' => 'tel', 'required' => false, 'col' => 3],
                 ['name' => 'email', 'label' => 'Correo Electrónico', 'type' => 'email', 'required' => true, 'col' => 6],
             ],
         ],

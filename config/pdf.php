@@ -23,9 +23,9 @@ return [
             'layout' => 'pdf/layouts/mec.pdf',
             'upload_path' => 'MATRICULAS WEB/MEC',
             'signature_coords' => [
-                'x' => 70,
+                'x' => 80,
                 'y' => 250,
-                'width' => 90,
+                'width' => 150,
             ],
         ],
     ],
