@@ -23,4 +23,8 @@ return [
 
     'informacion_adicional' => 'FINALIDAD del tratamiento de los datos: para gestionar su solicitud de admisión en la actividad formativa seleccionada, así como en su caso la posterior matriculación, gestión, coordinación y celebración del mismo, una vez admitido. En cuanto a los DESTINATARIOS de los datos se deberá incorporar que serán cedidos a Fundación EOI F.S.P y a la Secretaría de Estado de Digitalización, así como a los Estados miembros y la Comisión en aplicación de la normativa establecida en el artículo 22 del Reglamento (UE) 2021/241 del Parlamento Europeo y del Consejo, de 12 de febrero de 2021, por el que se establece el Mecanismo de Recuperación y Resiliencia.',
 
+    'autorizaciones'=> 'Con la presentación de esta solicitud, y de acuerdo con el artículo 28 de la Ley 39/2015 de 1 de octubre, de Procedimiento Administrativo Común de las Administraciones Públicas, la Subdirección General de Programas y Gestión podrá consultar o recabar documentos elaborados por cualquier Administración salvo que consté en el procedimiento su oposición expresa. En particular se recabarán los siguientes datos salvo que usted marque expresamente: ',
+
+    'no_autoriza'=> 'En el caso de oponerse a la consulta para la comprobación de los datos se compromete a aportar la documentación pertinente. ',
+
 ];

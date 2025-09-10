@@ -182,29 +182,52 @@ function isValidDniNie(value) {
     return false;
 }
 
-function isValidCif(value) {
-    const cif = value.trim().toUpperCase();
-    if (!/^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/.test(cif)) return false;
+function isValidDocumento(value) {
+    const val = value.trim().toUpperCase();
+    const letters = 'TRWAGMYFPDXBNJZSQVHLCKE';
 
-    const control = cif[cif.length - 1];
-    const digits = cif.slice(1, -1);
-    const letters = 'JABCDEFGHI';
-    let sumA = 0, sumB = 0;
-
-    for (let i = 0; i < digits.length; i++) {
-        const n = parseInt(digits[i], 10);
-        if (i % 2 === 0) {
-            const prod = n * 2;
-            sumA += Math.floor(prod / 10) + (prod % 10);
-        } else sumB += n;
+    // --- DNI ---
+    const dniRegex = /^\d{8}[A-Z]$/;
+    if (dniRegex.test(val)) {
+        const num = parseInt(val.slice(0, 8), 10);
+        return letters[num % 23] === val[8];
     }
 
-    const total = sumA + sumB;
-    const controlDigit = (10 - (total % 10)) % 10;
-    const controlLetter = letters[controlDigit];
-    const firstChar = cif[0];
+    // --- NIE ---
+    const nieRegex = /^[XYZ]\d{7}[A-Z]$/;
+    if (nieRegex.test(val)) {
+        const prefix = { X: '0', Y: '1', Z: '2' }[val[0]];
+        const num = parseInt(prefix + val.slice(1, 8), 10);
+        return letters[num % 23] === val[8];
+    }
 
-    if ('ABEH'.includes(firstChar)) return control === controlDigit.toString();
-    if ('KPQS'.includes(firstChar)) return control === controlLetter;
-    return control === controlDigit.toString() || control === controlLetter;
+    // --- CIF ---
+    const cifRegex = /^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/;
+    if (cifRegex.test(val)) {
+        const control = val[val.length - 1];
+        const digits = val.slice(1, -1);
+        const lettersCif = 'JABCDEFGHI';
+        let sumA = 0, sumB = 0;
+
+        for (let i = 0; i < digits.length; i++) {
+            const n = parseInt(digits[i], 10);
+            if (i % 2 === 0) {
+                const prod = n * 2;
+                sumA += Math.floor(prod / 10) + (prod % 10);
+            } else sumB += n;
+        }
+
+        const total = sumA + sumB;
+        const controlDigit = (10 - (total % 10)) % 10;
+        const controlLetter = lettersCif[controlDigit];
+        const firstChar = val[0];
+
+        if ('ABEH'.includes(firstChar)) return control === controlDigit.toString();
+        if ('KPQS'.includes(firstChar)) return control === controlLetter;
+        return control === controlDigit.toString() || control === controlLetter;
+    }
+
+    // Ningún formato válido
+    return false;
 }
+

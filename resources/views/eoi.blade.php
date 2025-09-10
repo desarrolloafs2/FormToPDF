@@ -3,7 +3,7 @@
 @section('title', 'Formulario de Inscripción')
 
 @section('content')
-    <h1 class="mb-4 text-center">Formulario de Inscripción</h1>
+    <h1 class="mb-4 text-center mt-5">Formulario de Inscripción</h1>
 
     <form id="{{ $type }}" class="my-5" method="POST" action="{{ url($type) }}" enctype="multipart/form-data">
         @csrf
@@ -208,7 +208,7 @@
                         </div>
 
                         <!-- Empresa y Pyme -->
-                        <h5 class="form-section-subtitle">Para Trabajadores por cuenta ajena (Todo Tipo de Empresas)</h5>
+                        <h5 class="form-section-subtitle">Datos de Empresa</h5>
                         <div class="row">
                             <div class="col-md-6 mb-4">
                                 <label for="empresa" class="form-label">Nombre de la Empresa</label>

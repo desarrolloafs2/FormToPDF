@@ -114,9 +114,9 @@ return [
     ],
 
     'idiomas' => [
-        'Inglés',
-        'Francés',
-        'Otro idioma'
+        'INGLÉS',
+        'FRANCÉS',
+        'OTRO'
     ],
 
     'niveles_oficiales' => [
@@ -129,14 +129,19 @@ return [
     ],
 
     'niveles_no_oficiales' => [
-        'Básico',
-        'Medio',
-        'Avanzado'
+        'BÁSICO',
+        'MEDIO',
+        'AVANZADO'
     ],
 
     'situacion_actual' => [
         1 => 'Empleado/a por cuenta ajena',
         2 => 'Autónomo/a - empresario/a',
+    ],
+
+    'situacion_laboral' => [
+        'desempleado' => 'Trabajador/a desempleado/a',
+        'ocupado' => 'Trabajador/a ocupado/a',
     ],
 
     // Categorías (checkboxes)
@@ -150,6 +155,31 @@ return [
         'categoria_tecnico' => 'Técnico/a',
         'trabajador_cualificado' => 'Trabajador/a cualificado/a',
         'trabajador_no_cualificado' => 'Trabajador/a de baja cualificación',
+    ],
+
+    // 'motivos' => [
+    //     'interes' => 'Interés',
+    //     'prestacion' => 'No perder la Prestación',
+    //     'cualificacion' => 'Mejorar la Cualificación',
+    //     'trabajo' => 'Encontrar Trabajo',
+    //     'sector' => 'Cambiar de Sector',
+    //     'otros' => 'Otros',
+    // ],
+
+    'motivo_participacion' => [
+        'motivo_interes' => 'Interés',
+        'motivo_prestacion' => 'No perder la Prestación',
+        'motivo_cualificacion' => 'Mejorar la Cualificación',
+        'motivo_trabajo' => 'Encontrar Trabajo',
+        'motivo_sector' => 'Cambiar de Sector',
+        'motivo_otros' => 'Otros',
+    ],
+
+
+    'autorizaciones' => [
+        'autorizacion_datos_ss' => 'Me opongo a la consulta de datos acreditativos de Seguridad social (Vida laboral).',
+        'autorizacion_datos_titulacion' => 'Me opongo a la consulta de datos acreditativos sobre titulación académica.',
+        'autorizacion_datos_identidad' => 'Me opongo a la consulta de datos acreditativos de identidad (DNI/NIE).',
     ],
 
     // Situación desempleado (checkboxes)
@@ -247,7 +277,7 @@ return [
         '+10 años',
     ],
 
-    
+
     'facturacion' => [
         ' 0 - 500.000€',
         '500.000 - 1M€',

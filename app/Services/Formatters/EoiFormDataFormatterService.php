@@ -64,7 +64,6 @@ class EoiFormDataFormatterService implements PdfFormFormatterInterface
                 } else {
                     $data[$pdfField] = $this->handleMappedOption($pdfOptions, $mappedValues);
                 }
-
             }
         }
 

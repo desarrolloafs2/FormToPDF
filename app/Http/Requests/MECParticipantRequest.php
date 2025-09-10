@@ -23,6 +23,7 @@ class MecParticipantRequest extends FormRequest
             'sexo' => ['required', 'in:' . implode(',', config('options.sexo'))],
             'tipo_via' => ['required', 'in:' . implode(',', config('options.via'))],
             'nif' => ['required', new DniNieRule()],
+            'birthdate' => ['required', 'date', 'before:' . now()->subYears(16)->toDateString()],
             'direccion' => ['required', 'string', 'max:255'],
             'localidad' => ['required', 'string', 'max:100'],
             'codigo_postal' => ['required', 'regex:/^(0[1-9]|[1-4][0-9]|5[0-2])\d{3}$/'],
@@ -30,23 +31,25 @@ class MecParticipantRequest extends FormRequest
             'telefono' => ['required', 'regex:/^(?:\+34|34)?\s?(6|7|8|9)\d{2}[\s-]?\d{3}[\s-]?\d{3}$/'],
             'telefono_fijo' => ['nullable', 'regex:/^[89]\d{8}$/'],
             'email' => ['required', 'email', 'max:255'],
-            'carnet' => ['required', 'in:si,no'],
+            'carnet' => ['required', ''],
             'carnet_tipos' => ['nullable', 'string', 'max:255'],
+            'nuss' => ['nullable', 'regex:/^\d{12}$/'], // Número de la Seguridad Social
 
-            // Datos Representante
-            'firstSurname_rep' => ['nullable', 'string', 'max:255'],
-            'apellido2_rep' => ['nullable', 'string', 'max:255'],
-            'name_rep' => ['nullable', 'string', 'max:255'],
-            'tipo_documento_rep' => ['nullable', 'in:' . implode(',', config('options.dni'))],
-            'nif_rep' => ['nullable', 'string', 'max:50'],
-            'sexo_rep' => ['nullable', 'in:' . implode(',', config('options.sexo'))],
-            'direccion_rep' => ['nullable', 'string', 'max:255'],
-            'poblacion_rep' => ['nullable', 'string', 'max:255'],
-            'CP_rep' => ['nullable', 'string', 'max:10'],
-            'provincia_rep' => ['nullable', 'in:' . implode(',', config('options.provincias'))],
-            'email_rep' => ['nullable', 'email', 'max:255'],
-            'telefono_movil_rep' => ['nullable', 'string', 'max:20'],
-            'telefono_fijo_rep' => ['nullable', 'string', 'max:20'],
+            // --- Datos Representante ---
+            'name_representante' => ['nullable', 'string', 'max:255', 'required_with:firstSurname_representante,nif_representante'],
+            'firstSurname_representante' => ['nullable', 'string', 'max:255', 'required_with:name_representante,nif_representante'],
+            'apellido2_representante' => ['nullable', 'string', 'max:255'],
+            'nif_representante' => ['nullable', 'string', 'max:50', 'required_with:firstSurname_representante,name_representante'],
+            'sexo_representante' => ['nullable', 'in:' . implode(',', config('options.sexo'))],
+            'direccion_representante' => ['nullable', 'string', 'max:255', 'required_with:poblacion_representante,CP_representante,provincia_representante'],
+            'localidad_representante' => ['nullable', 'string', 'max:255', 'required_with:direccion_representante,CP_representante,provincia_representante'],
+            'codigo_postal_representante' => ['nullable', 'string', 'max:10', 'required_with:direccion_representante,poblacion_representante,provincia_representante'],
+            'provincia_representante' => ['nullable', 'in:' . implode(',', config('options.provincias')), 'required_with:direccion_representante,poblacion_representante,CP_representante'],
+            'email_representante' => ['nullable', 'email', 'max:255'],
+            'telefono_movil_representante' => ['nullable', 'regex:/^(?:\+34|34)?\s?(6|7|8|9)\d{2}[\s-]?\d{3}[\s-]?\d{3}$/'],
+            'telefono_fijo_representante' => ['nullable', 'regex:/^[89]\d{8}$/'],
+
+            // --- Horario de llamadas (común a ambos) ---
             'horario_llamadas' => ['nullable', 'string', 'max:100'],
 
             // Situación Laboral
@@ -55,8 +58,6 @@ class MecParticipantRequest extends FormRequest
             // Caso desempleado
             'oficina_empleo' => ['required_if:situacion_laboral,desempleado', 'string', 'max:255'],
             'fecha_inscripcion' => ['required_if:situacion_laboral,desempleado', 'date'],
-
-            // Radio de situación desempleado
             'situacion_desempleado' => [
                 'required_if:situacion_laboral,desempleado',
                 'string',
@@ -71,20 +72,20 @@ class MecParticipantRequest extends FormRequest
             'localidad_trabajo' => ['required_if:situacion_laboral,ocupado', 'string', 'max:255'],
             'cp_trabajo' => ['nullable', 'digits_between:4,5'],
             'regimen_cotizacion' => ['nullable', 'string', 'max:50'],
+            'empresa_mas_250' => 'required_if:situacion_laboral,ocupado',
 
-            // Categorías (primer bloque: checkboxes, segundo bloque: radio requerido)
+            // Categorías (checkboxes dinámicos)
             ...collect(array_keys(config('options.categorias')))
-                ->mapWithKeys(fn($key) => [$key => ['nullable', 'boolean']])
+                ->mapWithKeys(fn($key) => [$key => ['nullable', '']])
                 ->toArray(),
 
             'categoria' => ['required_if:situacion_laboral,ocupado', 'in:' . implode(',', array_keys(config('options.categorias')))],
 
-
             // Datos Académicos
             'nivel_academico' => ['required', 'in:' . implode(',', array_keys(config('options.nivel_academico')))],
             'especialidad' => ['nullable', 'string', 'max:255'],
-            
-            //Formación Profesional
+
+            // Formación Profesional
             'curso' => ['nullable', 'array'],
             'curso.*' => ['nullable', 'string', 'max:255'],
             'anio' => ['nullable', 'array'],
@@ -93,8 +94,7 @@ class MecParticipantRequest extends FormRequest
             'duracion.*' => ['nullable', 'integer', 'min:1'],
             'centro' => ['nullable', 'array'],
             'centro.*' => ['nullable', 'string', 'max:255'],
-            'otro_curso' => ['required', 'in:si,no'],
-            'otro_curso_text' => ['string', 'max:255', 'required_if:otro_curso,si'],
+            'otro_curso' => ['nullable', 'string', 'max:255'],
 
             // Experiencia Profesional
             'puesto' => ['nullable', 'string', 'max:255'],
@@ -102,6 +102,13 @@ class MecParticipantRequest extends FormRequest
             'empresa' => ['nullable', 'string', 'max:255'],
             'duracion_trabajo' => ['nullable', 'numeric', 'min:0'],
             'sector_anterior' => ['nullable', 'string', 'max:255'],
+
+            // --- Idiomas ---
+            'idiomas' => ['nullable', 'array'],
+            'idiomas.*.activo' => ['nullable', 'in:1'],
+            'idiomas.*.oficial' => ['nullable', 'in:' . implode(',', array_merge(config('options.niveles_oficiales'), config('options.niveles_no_oficiales')))],
+            'idiomas.*.no_oficial' => ['nullable', 'in:' . implode(',', config('options.niveles_no_oficiales'))],
+            'idiomas.OTRO.valor' => ['nullable', 'string', 'max:255'],
 
             // Motivos
             'motivo_interes' => 'nullable',
@@ -111,28 +118,19 @@ class MecParticipantRequest extends FormRequest
             'motivo_sector' => 'nullable',
             'motivo_otros' => 'nullable',
 
-            // Firma y lugar
-            'lugar' => ['nullable', 'string', 'max:100'],
-            'fecha' => ['nullable', 'date'],
-            'signature' => ['required']
+            /// Motivos (array de checkboxes, no obligatorio)
+            'motivos' => ['array'],
+            'motivos.*' => ['in:' . implode(',', array_keys(config('options.motivo_participacion')))],
 
+            // Autorizaciones (array de checkboxes, no obligatorio)
+            'autorizaciones' => ['array'],
+            'autorizaciones.*' => ['in:' . implode(',', array_keys(config('options.autorizaciones')))],
+            // Firma y lugar
+            'lugar' => ['required', 'string', 'max:100'],
+            'fecha' => ['required', 'date'],
+            'signature' => ['required'],
         ];
 
-        // idiomas
-        $idiomas = config('options.idiomas');
-        $nivelesOficiales = config('options.niveles_oficiales');
-        $nivelesNoOficiales = config('options.niveles_no_oficiales');
-        foreach ($idiomas as $index => $idioma) {
-            $index1 = $index + 1;
-            // Checkbox general del idioma
-            $rules['IDIOMA_' . $index1] = ['nullable', 'boolean'];
-            // Radios niveles oficiales
-            $rules['OFICIAL_' . $index1] = ['nullable', 'in:' . implode(',', $nivelesOficiales)];
-            // Radios niveles no oficiales
-            $rules['NO_OFICIAL_' . $index1] = ['nullable', 'in:' . implode(',', $nivelesNoOficiales)];
-        }
-        // Campo para especificar otro idioma
-        $rules['OTRO'] = ['nullable', 'string', 'max:255'];
 
         return $rules;
     }
@@ -155,45 +153,45 @@ class MecParticipantRequest extends FormRequest
 
     public function withValidator($validator)
     {
-        // Validación de motivos (ya existente)
-        $this->validateAtLeastOneChecked($validator, [
-            'motivo_interes',
-            'motivo_prestacion',
-            'motivo_cualificacion',
-            'motivo_trabajo',
-            'motivo_sector',
-            'motivo_otros',
-        ], 'motivos', 'Debe seleccionar al menos un motivo.');
+        // -------------------- VALIDACIÓN DE MOTIVOS --------------------
+        $validator->after(function ($validator) {
+            $motivos = $this->input('motivos', []);
+            if (!is_array($motivos) || count($motivos) === 0) {
+                $validator->errors()->add('motivos', 'Debe seleccionar al menos un motivo.');
+            }
+        });
 
-        $idiomas = config('options.idiomas');
-        $idiomaFields = [];
-        foreach ($idiomas as $index => $idioma) {
-            $idiomaFields[] = 'IDIOMA_' . ($index + 1);
-        }
+        // -------------------- VALIDACIÓN DE IDIOMAS --------------------
+        // $idiomas = config('options.idiomas');
 
-        $validator->after(function ($validator) use ($idiomas) {
-            $otroIndex = count($idiomas) - 1; // Último idioma es "Otro idioma"
-            $otroCheckbox = 'IDIOMA_' . ($otroIndex + 1);
-            $oficial = 'OFICIAL_' . ($otroIndex + 1);
-            $noOficial = 'NO_OFICIAL_' . ($otroIndex + 1);
-            if ($this->input($otroCheckbox)) {
-                // El campo OTRO es obligatorio si se marca el checkbox
-                if (!$this->filled('OTRO')) {
-                    $validator->errors()->add('OTRO', 'Debe especificar el idioma si selecciona "Otro idioma".');
+        // Validación de idiomas
+        $validator->after(function ($validator) {
+            $idiomas = $this->input('idiomas', []);
+            foreach ($idiomas as $idioma => $info) {
+                if (!empty($info['activo']) && empty($info['oficial']) && empty($info['no_oficial']) && strtoupper($idioma) !== 'OTRO') {
+                    $validator->errors()->add("idiomas.$idioma.oficial", "Debe seleccionar un nivel para el idioma $idioma.");
                 }
-                // Debe marcarse al menos un nivel
-                if (!$this->filled($oficial) && !$this->filled($noOficial)) {
-                    $validator->errors()->add('NIVEL_OTRO', 'Debe seleccionar un nivel para "Otro idioma".');
+                if ($idioma === 'OTRO' && !empty($info['activo']) && empty($info['valor'])) {
+                    $validator->errors()->add("idiomas.OTRO.valor", 'Debe especificar el idioma si selecciona "Otro".');
+                }
+            }
+        });
+
+        // -------------------- VALIDACIÓN DE CATEGORÍAS --------------------
+        $validator->after(function ($validator) {
+            if ($this->input('situacion_laboral') === 'ocupado') {
+                $categorias = array_keys(config('options.categorias'));
+                $anyChecked = collect($categorias)->some(fn($cat) => !empty($this->input($cat)));
+                if (!$anyChecked) {
+                    $validator->errors()->add('categorias', 'Debe seleccionar al menos una categoría.');
                 }
             }
         });
     }
 
-
     public function attributes(): array
     {
         return [
-            // Datos Personales
             'firstSurname' => 'primer apellido',
             'apellido2' => 'segundo apellido',
             'name' => 'nombre',
@@ -210,8 +208,7 @@ class MecParticipantRequest extends FormRequest
             'email' => 'correo electrónico',
             'carnet' => 'carnet de conducir',
             'carnet_tipos' => 'tipo de carnet',
-
-            // Datos Representante
+            'nuss' => 'número de la seguridad social',
             'firstSurname_rep' => 'primer apellido del representante',
             'apellido2_rep' => 'segundo apellido del representante',
             'name_rep' => 'nombre del representante',
@@ -226,8 +223,6 @@ class MecParticipantRequest extends FormRequest
             'telefono_movil_rep' => 'teléfono móvil del representante',
             'telefono_fijo_rep' => 'teléfono fijo del representante',
             'horario_llamadas' => 'horario para llamadas',
-
-            // Situación Laboral
             'situacion_laboral' => 'situación laboral',
             'oficina_empleo' => 'oficina de empleo',
             'fecha_inscripcion' => 'fecha de inscripción',
@@ -238,68 +233,35 @@ class MecParticipantRequest extends FormRequest
             'localidad_trabajo' => 'localidad del trabajo',
             'cp_trabajo' => 'código postal del trabajo',
             'regimen_cotizacion' => 'régimen de cotización',
-
-            // Datos Académicos
-            'sin_estudios' => 'sin estudios',
-            'estudios_primarios' => 'estudios primarios',
-            'certificado_escolaridad' => 'certificado de escolaridad',
-            'graduado_escolar' => 'graduado escolar',
-            'eso' => 'ESO',
-            'fp1' => 'FP1',
-            'ciclo_grado_medio' => 'ciclo de grado medio',
-            'bup_1_2' => 'BUP 1º y 2º',
-            'bup_1_2_3' => 'BUP 1º, 2º y 3º',
-            'fp2' => 'FP2',
-            'ciclo_grado_superior' => 'ciclo de grado superior',
-            'cou' => 'COU',
-            'bachiller' => 'bachillerato',
-            'diplomatura' => 'diplomatura',
-            'licenciatura' => 'licenciatura',
-            'grado' => 'grado universitario',
-            'doctorado' => 'doctorado',
-            'certificado_profesional_n1' => 'certificado profesional nivel 1',
-            'certificado_profesional_n2' => 'certificado profesional nivel 2',
-            'certificado_profesional_n3' => 'certificado profesional nivel 3',
-            'otros' => 'otros estudios',
+            'nivel_academico' => 'nivel académico',
             'especialidad' => 'especialidad',
-
-            // Formación Profesional (arrays)
             'curso' => 'curso',
             'anio' => 'año',
             'duracion' => 'duración',
             'centro' => 'centro',
             'otro_curso' => 'otro curso',
-            'otro_curso_text' => 'detalle de otro curso',
-
-            // Experiencia Profesional
             'puesto' => 'puesto',
             'funciones' => 'funciones',
             'empresa' => 'empresa',
             'duracion_trabajo' => 'duración del trabajo',
             'sector_anterior' => 'sector anterior',
-
-            // Motivos (checkboxes)
             'motivo_interes' => 'motivo de interés',
             'motivo_prestacion' => 'motivo de prestación',
             'motivo_cualificacion' => 'motivo de cualificación',
             'motivo_trabajo' => 'motivo de trabajo',
             'motivo_sector' => 'motivo de sector',
             'motivo_otros' => 'otros motivos',
-
-            // Firma y lugar
             'lugar' => 'lugar',
             'fecha' => 'fecha',
             'signature' => 'firma',
-
-            // Campos generados dinámicamente (ejemplo idiomas)
-            // Puedes añadir a mano si quieres para idiomas, niveles, etc.
-
         ];
     }
 
     public function messages(): array
     {
         return [
+            'autorizaciones.*.in' => 'El valor seleccionado para :attribute no es válido.',
+            'motivos.*.in' => 'El valor seleccionado para :attribute no es válido.',
             'required' => 'El campo :attribute es obligatorio.',
             'required_if' => 'El campo :attribute es obligatorio cuando :other es :value.',
             'boolean' => 'El campo :attribute debe ser verdadero o falso.',
@@ -316,18 +278,12 @@ class MecParticipantRequest extends FormRequest
             'array' => 'El campo :attribute debe ser un arreglo.',
             'accepted' => 'Debe aceptar el campo :attribute.',
             'after' => 'La fecha :attribute debe ser posterior a :date.',
-
-            // Mensajes personalizados específicos
             'signature.required' => 'La firma es obligatoria.',
             'codigo_postal.regex' => 'El formato del código postal es incorrecto.',
             'telefono.regex' => 'El formato del teléfono móvil es inválido.',
             'motivos.required' => 'Debe seleccionar al menos un motivo.',
-
-            // Puedes añadir mensajes para campos dinámicos si lo deseas
-            // Ejemplo para idiomas o niveles:
-            // 'BÁSICO_1.boolean' => 'El valor para Básico 1 debe ser verdadero o falso.',
+            'categorias.required' => 'Debe seleccionar al menos una categoría si está ocupado.',
+            'NIVEL_OTRO.required' => 'Debe seleccionar un nivel para "Otro idioma".',
         ];
     }
-
-
 }

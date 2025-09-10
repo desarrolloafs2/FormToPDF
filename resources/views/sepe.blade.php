@@ -1,17 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Formulario Anexo I')
+@section('title', 'Formulario de Inscripcion')
 
 @section('content')
     @php use Carbon\Carbon; @endphp
 
     <h1 class="mb-4 text-center">Formulario de Inscripción</h1>
+
     <form id="form" class="my-5" method="POST" action="{{ url($type) }}">
         <div class="container-fluid">
             <div class="row">
                 <div
                     class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 offset-0 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
-                    <h2 class="text-center mb-5">Datos Personales</h2>
+                    <h2 class="form-section-title">Datos Personales</h2>
                     {{ csrf_field() }}
                     @if ($errors->any())
                         <div class="alert alert-danger" role="alert">
