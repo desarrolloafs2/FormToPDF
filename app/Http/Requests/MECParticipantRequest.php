@@ -103,6 +103,13 @@ class MecParticipantRequest extends FormRequest
             'duracion_trabajo' => ['nullable', 'numeric', 'min:0'],
             'sector_anterior' => ['nullable', 'string', 'max:255'],
 
+            // --- Idiomas ---
+            'idiomas' => ['nullable', 'array'],
+            'idiomas.*.activo' => ['nullable', 'in:1'],
+            'idiomas.*.oficial' => ['nullable', 'in:' . implode(',', array_merge(config('options.niveles_oficiales'), config('options.niveles_no_oficiales')))],
+            'idiomas.*.no_oficial' => ['nullable', 'in:' . implode(',', config('options.niveles_no_oficiales'))],
+            'idiomas.OTRO.valor' => ['nullable', 'string', 'max:255'],
+
             // Motivos
             'motivo_interes' => 'nullable',
             'motivo_prestacion' => 'nullable',
@@ -124,19 +131,6 @@ class MecParticipantRequest extends FormRequest
             'signature' => ['required'],
         ];
 
-        // Idiomas
-        $idiomas = config('options.idiomas');
-        $nivelesOficiales = config('options.niveles_oficiales');
-        $nivelesNoOficiales = config('options.niveles_no_oficiales');
-
-        foreach ($idiomas as $index => $idioma) {
-            $index1 = $index + 1;
-            $rules[$idioma . $index1] = ['nullable', 'boolean'];
-            $rules['OFICIAL_' . $index1] = ['nullable', 'in:' . implode(',', $nivelesOficiales)];
-            $rules['NO_OFICIAL_' . $index1] = ['nullable', 'in:' . implode(',', $nivelesNoOficiales)];
-        }
-
-        $rules['OTRO'] = ['nullable', 'string', 'max:255'];
 
         return $rules;
     }
@@ -168,34 +162,17 @@ class MecParticipantRequest extends FormRequest
         });
 
         // -------------------- VALIDACIÓN DE IDIOMAS --------------------
-        $idiomas = config('options.idiomas'); // ["INGLÉS", "FRANCÉS", "OTRO"]
+        // $idiomas = config('options.idiomas');
 
-        $validator->after(function ($validator) use ($idiomas) {
-            foreach ($idiomas as $index => $idioma) {
-                $checkboxName = $idioma; // nombre del checkbox
-
-                // Solo validar si está marcado
-                if ($this->boolean($checkboxName)) {
-                    // Determinar campos de niveles según idioma
-                    $oficialField = 'OFICIAL_' . ($index + 1);
-                    $noOficialField = 'NO_OFICIAL_' . ($index + 1);
-
-                    // Validar que se seleccione **exactamente un nivel**, oficial o no oficial
-                    $nivel = $this->input($oficialField) ?: $this->input($noOficialField);
-                    if (!$nivel) {
-                        $validator->errors()->add(
-                            'NIVEL_' . $idioma,
-                            "Debe seleccionar un nivel para el idioma $idioma."
-                        );
-                    }
-
-                    // Si es OTRO, validar texto del idioma
-                    if (strtoupper($idioma) === 'OTRO' && !$this->filled('OTRO')) {
-                        $validator->errors()->add(
-                            'OTRO',
-                            'Debe especificar el idioma si selecciona "Otro idioma".'
-                        );
-                    }
+        // Validación de idiomas
+        $validator->after(function ($validator) {
+            $idiomas = $this->input('idiomas', []);
+            foreach ($idiomas as $idioma => $info) {
+                if (!empty($info['activo']) && empty($info['oficial']) && empty($info['no_oficial']) && strtoupper($idioma) !== 'OTRO') {
+                    $validator->errors()->add("idiomas.$idioma.oficial", "Debe seleccionar un nivel para el idioma $idioma.");
+                }
+                if ($idioma === 'OTRO' && !empty($info['activo']) && empty($info['valor'])) {
+                    $validator->errors()->add("idiomas.OTRO.valor", 'Debe especificar el idioma si selecciona "Otro".');
                 }
             }
         });

@@ -138,20 +138,33 @@ class MecFormDataFormatterService implements PdfFormFormatterInterface
 
         // --- IDIOMAS ---
         $idiomas = config('options.idiomas');
+        $nivelesOficiales = config('options.niveles_oficiales');
+        $nivelesNoOficiales = config('options.niveles_no_oficiales');
+        $idiomasRecibidos = $participant['idiomas'] ?? []; // Datos recibidos en request, ej: ["INGLÉS"=>"INGLÉS=1", "B1"=>"1", ...]
+
         foreach ($idiomas as $index => $idioma) {
-            $key = $index + 1;
+            $sufijo = $index === 0 ? '' : ($index === 1 ? '_2' : '_3'); // Inglés='', Francés='_2', Otro='_3'
 
-            if (!empty($participant['IDIOMA_' . $key] ?? null)) {
-                $data['idioma_' . $key] = $idioma;
-                $data['nivel_oficial_' . $key] = $participant['OFICIAL_' . $key] ?? null;
-                $data['nivel_no_oficial_' . $key] = $participant['NO_OFICIAL_' . $key] ?? null;
+            // Marcar idioma principal
+            $data[$idioma] = isset($idiomasRecibidos[$idioma]) ? 'On' : null;
 
-                if ($idioma === 'OTRO') {
-                    $data['otro_idioma'] = $this->helper->capitalize(trim($participant['OTRO'] ?? ''));
-                }
+            // Niveles oficiales
+            foreach ($nivelesOficiales as $nivel) {
+                $key = $nivel . $sufijo;
+                $data[$key] = (!empty($idiomasRecibidos[$idioma]['oficial']) && $idiomasRecibidos[$idioma]['oficial'] === $nivel) ? 'On' : null;
+            }
+
+            // Niveles no oficiales
+            foreach ($nivelesNoOficiales as $nivel) {
+                $key = $nivel . $sufijo;
+                $data[$key] = (!empty($idiomasRecibidos[$idioma]['no_oficial']) && $idiomasRecibidos[$idioma]['no_oficial'] === $nivel) ? 'On' : null;
+            }
+
+            // Campo OTRO idioma real
+            if ($idioma === 'OTRO') {
+                $data['otro_idioma'] = $this->helper->capitalize(trim($idiomasRecibidos['OTRO']['valor'] ?? ''));
             }
         }
-        $data['otro_idioma'] = $this->helper->capitalize(trim($participant['OTRO'] ?? ''));
 
         // --- FORMACIÓN PROFESIONAL ---
         $data['curso'] = isset($participant['curso']) ?

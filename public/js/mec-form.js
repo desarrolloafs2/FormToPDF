@@ -60,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
     singleSelectCheckbox('.desempleado-checkbox');
     singleSelectCheckbox('.ocupado-checkbox');
 
-
     // -------------------- VALIDACIÓN --------------------
     const validation = new JustValidate(`#${form.id}`);
 
@@ -107,78 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { rule: 'required', errorMessage: 'Debes seleccionar tu situación laboral' }
         ]);
     }
-
-    // -------------------- IDIOMAS --------------------
-    const idiomas = document.querySelectorAll('.chk-idioma');
-
-    idiomas.forEach((checkbox) => {
-        const grupo = checkbox.closest('.idioma-group');
-        const nivelesContainer = grupo.querySelector('.niveles');
-        const radios = nivelesContainer.querySelectorAll('input[type="radio"]');
-        const otroContainer = grupo.querySelector('#otro_idioma_container');
-        const otroInput = otroContainer ? otroContainer.querySelector('input') : null;
-
-        const idiomaName = checkbox.nextElementSibling.textContent.trim();
-        const sufijo = idiomaName === 'FRANCÉS' ? '_2' : (idiomaName === 'OTRO' ? '_3' : '');
-
-        function toggleIdioma() {
-            if (checkbox.checked) {
-                nivelesContainer.style.display = 'block';
-                radios.forEach(r => r.disabled = false);
-
-                if (idiomaName === 'OTRO' && otroInput) {
-                    otroInput.disabled = false;
-                    otroContainer.style.display = 'block';
-                }
-            } else {
-                nivelesContainer.style.display = 'none';
-                radios.forEach(r => { r.disabled = true; r.checked = false; });
-
-                if (idiomaName === 'OTRO' && otroInput) {
-                    otroInput.disabled = true;
-                    otroInput.value = '';
-                    otroContainer.style.display = 'none';
-                }
-            }
-        }
-
-        // Solo un nivel por idioma
-        radios.forEach(radio => {
-            radio.addEventListener('change', () => {
-                radios.forEach(r => { if (r !== radio) r.checked = false; });
-            });
-        });
-
-        checkbox.addEventListener('change', () => {
-            checkbox.value = checkbox.checked ? '1' : '0';
-            toggleIdioma();
-        });
-
-        toggleIdioma();
-        checkbox.value = checkbox.checked ? '1' : '0';
-
-        // Antes de enviar, formatea el valor final
-        form.addEventListener('submit', () => {
-            const carnet = document.querySelector('input[name="carnet"]:checked');
-            if (carnet) {
-                carnet.value = carnet.value === '1' ? 'sí' : 'no';
-            }
-
-
-            let nivel = '';
-            radios.forEach(r => { if (r.checked) nivel = r.value + sufijo; });
-
-            if (checkbox.checked && nivel) {
-                if (idiomaName === 'OTRO' && otroInput && otroInput.value.trim() !== '') {
-                    checkbox.value = `OTRO=${nivel}:${otroInput.value.trim()}`;
-                } else {
-                    checkbox.value = `${idiomaName}=${nivel}`;
-                }
-            } else {
-                checkbox.value = '';
-            }
-        });
-    });
 
     // -------------------- FIRMA --------------------
     validation.onSuccess(() => {

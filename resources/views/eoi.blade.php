@@ -208,7 +208,7 @@
                         </div>
 
                         <!-- Empresa y Pyme -->
-                        <h5 class="form-section-subtitle">Para Trabajadores por cuenta ajena (Todo Tipo de Empresas)</h5>
+                        <h5 class="form-section-subtitle">Datos de Empresa</h5>
                         <div class="row">
                             <div class="col-md-6 mb-4">
                                 <label for="empresa" class="form-label">Nombre de la Empresa</label>

@@ -73,11 +73,12 @@
 
             {{-- otros --}}
             <div class="row">
- <div
+                <div
                     class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
-                    <h2 class="form-section-title" class="text-center mb-5">Horario Llamadas</h2
-                        class="form-section-title">                    <label for="horario_llamadas" class="form-label">Horario para Contactar</label>
-                    <input type="text" class="form-control" id="horario_llamadas" name="horario_llamadas" value="{{ $isForTesting ? 'Mañanas' : old('horario_llamadas') }}">
+                    <h2 class="form-section-title" class="text-center mb-5">Horario Llamadas</h2 class="form-section-title">
+                    <label for="horario_llamadas" class="form-label">Horario para Contactar</label>
+                    <input type="text" class="form-control" id="horario_llamadas" name="horario_llamadas"
+                        value="{{ $isForTesting ? 'Mañanas' : old('horario_llamadas') }}">
                 </div>
             </div>
 
@@ -256,61 +257,80 @@
             </div>
 
             {{-- Bloque Idiomas --}}
-            <div class="row">
-                <div
-                    class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
-                    <h2 class="form-section-title text-center mb-5">Idiomas</h2>
+            <div
+                class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                <h2 class="form-section-title text-center mb-5">Idiomas</h2>
 
-                    @foreach (config('options.idiomas') as $index => $idioma)
-                        @php $key = $index + 1; @endphp
-                        <div class="idioma-group mb-4">
-                            {{-- Checkbox del idioma --}}
-                            <input type="checkbox" id="idioma_{{ $key }}" class="chk-idioma"
-                                name="{{ $idioma }}" value="1" data-index="{{ $key }}"
-                                @if ($isForTesting) checked @endif>
-                            <label for="idioma_{{ $key }}" class="fw-bold">{{ $idioma }}</label>
-                            {{-- Contenedor de niveles --}}
-                            <div class="niveles mt-2" style="display:none;">
-                                {{-- Niveles oficiales --}}
-                                <div class="mb-2">
-                                    <span class="d-block small text-muted">Niveles oficiales</span>
-                                    @foreach (config('options.niveles_oficiales') as $nivel)
-                                        <label class="me-2">
-                                            <input type="radio" name="{{ $nivel }}" value="1" disabled
-                                                @if ($isForTesting && $loop->first) checked @endif>
-                                            {{ $nivel }}
-                                        </label>
-                                    @endforeach
-                                </div>
-                                {{-- Niveles no oficiales --}}
-                                <div>
-                                    <span class="d-block small text-muted">Niveles no oficiales</span>
-                                    @foreach (config('options.niveles_no_oficiales') as $nivel)
-                                        <label class="me-2">
-                                            <input type="radio" name="{{ $nivel }}" value="1" disabled>
-                                            {{ $nivel }}
-                                        </label>
-                                    @endforeach
-                                </div>
+                @php
+                    $isForTesting = true; // para pruebas
+                    $current = $isForTesting
+                        ? [
+                            'INGLÉS' => ['activo' => 1, 'oficial' => 'A1'],
+                            'FRANCÉS' => ['activo' => 1, 'oficial' => 'B2'],
+                            'OTRO' => ['activo' => 1, 'valor' => 'Latín'],
+                        ]
+                        : $current ?? [];
+                @endphp
 
-                                <div class="idioma-error text-danger mt-1"></div>
+                @foreach (config('options.idiomas') as $index => $idioma)
+                    @php $key = $index + 1; @endphp
+                    <fieldset class="idioma-group mb-4">
+
+                        {{-- Checkbox del idioma --}}
+                        <div class="form-check">
+                            <input type="checkbox" class="chk-idioma form-check-input" id="idioma_{{ $key }}"
+                                name="idiomas[{{ $idioma }}][activo]" value="1"
+                                @if (!empty($current[$idioma]['activo'])) checked @endif>
+                            <label for="idioma_{{ $key }}"
+                                class="form-check-label fw-bold">{{ $idioma }}</label>
+                        </div>
+
+                        {{-- Niveles --}}
+                        <div class="niveles mt-2"
+                            style="{{ !empty($current[$idioma]['activo']) ? 'display:block;' : 'display:none;' }}">
+                            {{-- Niveles oficiales --}}
+                            <div class="mb-2">
+                                <span class="d-block small text-muted">Niveles oficiales</span>
+                                @foreach (config('options.niveles_oficiales') as $nivel)
+                                    <div class="form-check form-check-inline">
+                                        <input class="nivel-radio form-check-input" type="radio"
+                                            name="idiomas[{{ $idioma }}][oficial]" value="{{ $nivel }}"
+                                            @if (!empty($current[$idioma]['oficial']) && $current[$idioma]['oficial'] === $nivel) checked @endif>
+                                        <label class="form-check-label">{{ $nivel }}</label>
+                                    </div>
+                                @endforeach
                             </div>
-                            {{-- Campo extra para "Otro idioma" --}}
+
+                            {{-- Niveles no oficiales --}}
+                            <div class="mb-2">
+                                <span class="d-block small text-muted">Niveles no oficiales</span>
+                                @foreach (config('options.niveles_no_oficiales') as $nivel)
+                                    <div class="form-check form-check-inline">
+                                        <input class="nivel-radio form-check-input" type="radio"
+                                            name="idiomas[{{ $idioma }}][no_oficial]" value="{{ $nivel }}"
+                                            @if (!empty($current[$idioma]['no_oficial']) && $current[$idioma]['no_oficial'] === $nivel) checked @endif>
+                                        <label class="form-check-label">{{ $nivel }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            {{-- Campo OTRO idioma --}}
                             @if ($idioma === 'OTRO')
-                                <div class="mt-2" id="otro_idioma_container" style="display:;">
-                                    <input type="text" class="form-control" id="otro_idioma" name="OTRO"
-                                        placeholder="Especificar idioma"
-                                        value="{{ $isForTesting ? 'Latín' : old('OTRO') }}" disabled>
+                                <div id="otro_idioma_container"
+                                    style="{{ !empty($current['OTRO']['activo']) ? 'display:block;' : 'display:none;' }}">
+                                    <input type="text" class="form-control" name="idiomas[OTRO][valor]"
+                                        placeholder="Especificar idioma" value="{{ $current['OTRO']['valor'] ?? '' }}">
                                 </div>
                             @endif
                         </div>
+                    </fieldset>
 
-                        @if ($index < count(config('options.idiomas')) - 1)
-                            <hr>
-                        @endif
-                    @endforeach
-                </div>
+                    @if ($index < count(config('options.idiomas')) - 1)
+                        <hr>
+                    @endif
+                @endforeach
             </div>
+
 
             {{-- Bloque Formación Profesional --}}
             <div class="row">
@@ -464,4 +484,43 @@
 @endsection
 @push('scripts')
     <script src="{{ asset('js/mec-form.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const idiomas = document.querySelectorAll('.chk-idioma');
+
+            idiomas.forEach(checkbox => {
+                const grupo = checkbox.closest('.idioma-group');
+                const nivelesContainer = grupo.querySelector('.niveles');
+                const radios = nivelesContainer.querySelectorAll('input[type="radio"]');
+                const otroContainer = grupo.querySelector('#otro_idioma_container');
+                const otroInput = otroContainer ? otroContainer.querySelector('input') : null;
+
+                function toggleIdioma() {
+                    if (checkbox.checked) {
+                        nivelesContainer.style.display = 'block';
+                        if (otroContainer) otroContainer.style.display = 'block';
+                    } else {
+                        nivelesContainer.style.display = 'none';
+                        radios.forEach(r => r.checked = false);
+                        if (otroContainer) {
+                            otroContainer.style.display = 'none';
+                            if (otroInput) otroInput.value = '';
+                        }
+                    }
+                }
+
+                // Solo un nivel seleccionado por idioma
+                radios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        radios.forEach(r => {
+                            if (r !== radio) r.checked = false;
+                        });
+                    });
+                });
+
+                checkbox.addEventListener('change', toggleIdioma);
+                toggleIdioma();
+            });
+        });
+    </script>
 @endpush

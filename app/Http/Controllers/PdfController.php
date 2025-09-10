@@ -19,6 +19,10 @@ class PdfController extends Controller
     public function generate(FormRequest $request, PdfFormFormatterInterface $formatter, string $type): RedirectResponse
     {
 
+        // Log de la request completa, excluyendo la firma si existe
+        $requestData = $request->except('signature'); // excluimos la firma
+        Log::info('[PdfController] Request recibida', $requestData);
+
         // Validamos que el tipo esté registrado en el config/pdf.php
         if (!array_key_exists($type, config('pdf.types'))) {
             abort(404, 'Tipo de formulario no válido');
