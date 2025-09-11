@@ -255,39 +255,34 @@
                     </div>
                 </div>
             </div>
-
             {{-- Bloque Idiomas --}}
+            @php
+                $current = $isForTesting
+                    ? [
+                        'INGLÉS' => ['activo' => 1, 'oficial' => 'A1'],
+                        'FRANCÉS' => ['activo' => 1, 'oficial' => 'B2'],
+                        'OTRO' => ['activo' => 1, 'valor' => 'Latín'],
+                    ]
+                    : [];
+            @endphp
+
             <div
                 class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
                 <h2 class="form-section-title text-center mb-5">Idiomas</h2>
 
-                @php
-                    $isForTesting = true; // para pruebas
-                    $current = $isForTesting
-                        ? [
-                            'INGLÉS' => ['activo' => 1, 'oficial' => 'A1'],
-                            'FRANCÉS' => ['activo' => 1, 'oficial' => 'B2'],
-                            'OTRO' => ['activo' => 1, 'valor' => 'Latín'],
-                        ]
-                        : $current ?? [];
-                @endphp
-
                 @foreach (config('options.idiomas') as $index => $idioma)
                     @php $key = $index + 1; @endphp
                     <fieldset class="idioma-group mb-4">
-
-                        {{-- Checkbox del idioma --}}
                         <div class="form-check">
                             <input type="checkbox" class="chk-idioma form-check-input" id="idioma_{{ $key }}"
                                 name="idiomas[{{ $idioma }}][activo]" value="1"
-                                @if (!empty($current[$idioma]['activo'])) checked @endif>
+                                @if ($isForTesting && !empty($current[$idioma]['activo'])) checked @endif>
                             <label for="idioma_{{ $key }}"
                                 class="form-check-label fw-bold">{{ $idioma }}</label>
                         </div>
 
-                        {{-- Niveles --}}
                         <div class="niveles mt-2"
-                            style="{{ !empty($current[$idioma]['activo']) ? 'display:block;' : 'display:none;' }}">
+                            style="{{ $isForTesting && !empty($current[$idioma]['activo']) ? 'display:block;' : 'display:none;' }}">
                             {{-- Niveles oficiales --}}
                             <div class="mb-2">
                                 <span class="d-block small text-muted">Niveles oficiales</span>
@@ -295,7 +290,7 @@
                                     <div class="form-check form-check-inline">
                                         <input class="nivel-radio form-check-input" type="radio"
                                             name="idiomas[{{ $idioma }}][oficial]" value="{{ $nivel }}"
-                                            @if (!empty($current[$idioma]['oficial']) && $current[$idioma]['oficial'] === $nivel) checked @endif>
+                                            @if ($isForTesting && !empty($current[$idioma]['oficial']) && $current[$idioma]['oficial'] === $nivel) checked @endif>
                                         <label class="form-check-label">{{ $nivel }}</label>
                                     </div>
                                 @endforeach
@@ -308,18 +303,19 @@
                                     <div class="form-check form-check-inline">
                                         <input class="nivel-radio form-check-input" type="radio"
                                             name="idiomas[{{ $idioma }}][no_oficial]" value="{{ $nivel }}"
-                                            @if (!empty($current[$idioma]['no_oficial']) && $current[$idioma]['no_oficial'] === $nivel) checked @endif>
+                                            @if ($isForTesting && !empty($current[$idioma]['no_oficial']) && $current[$idioma]['no_oficial'] === $nivel) checked @endif>
                                         <label class="form-check-label">{{ $nivel }}</label>
                                     </div>
                                 @endforeach
                             </div>
 
-                            {{-- Campo OTRO idioma --}}
+                            {{-- OTRO idioma --}}
                             @if ($idioma === 'OTRO')
                                 <div id="otro_idioma_container"
-                                    style="{{ !empty($current['OTRO']['activo']) ? 'display:block;' : 'display:none;' }}">
+                                    style="{{ $isForTesting && !empty($current['OTRO']['activo']) ? 'display:block;' : 'display:none;' }}">
                                     <input type="text" class="form-control" name="idiomas[OTRO][valor]"
-                                        placeholder="Especificar idioma" value="{{ $current['OTRO']['valor'] ?? '' }}">
+                                        placeholder="Especificar idioma"
+                                        value="{{ $isForTesting ? $current['OTRO']['valor'] ?? '' : '' }}">
                                 </div>
                             @endif
                         </div>
@@ -331,154 +327,131 @@
                 @endforeach
             </div>
 
-
             {{-- Bloque Formación Profesional --}}
-            <div class="row">
+            <div
+                class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                <h2 class="form-section-title text-center mb-5">Formación Profesional</h2>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Denominación Curso</th>
+                                <th>Año</th>
+                                <th>Duración (Horas)</th>
+                                <th>Centro</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" class="form-control" name="curso[]"
+                                        value="{{ $isForTesting ? 'Excel Avanzado' : '' }}"></td>
+                                <td><input type="text" class="form-control" name="anio[]"
+                                        value="{{ $isForTesting ? '2024' : '' }}"></td>
+                                <td><input type="text" class="form-control" name="duracion[]"
+                                        value="{{ $isForTesting ? '20' : '' }}"></td>
+                                <td><input type="text" class="form-control" name="centro[]"
+                                        value="{{ $isForTesting ? 'Centro Ejemplo' : '' }}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row mb-3" id="otro_curso">
+                    <div class="col-md-4 d-flex align-items-center">
+                        <label for="otro_curso" class="form-label mb-0">¿Está matriculado en otro curso? ¿Cuál?</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="otro_curso" name="otro_curso"
+                            placeholder="Nombre del curso" value="{{ $isForTesting ? 'Curso de Liderazgo' : '' }}">
+                    </div>
+                </div>
+            </div>
+
+            {{-- Bloque Experiencia Profesional --}}
+            <div
+                class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                <h2 class="form-section-title text-center mb-5">Experiencia Profesional</h2>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Puesto</th>
+                                <th>Funciones</th>
+                                <th>Empresa </th>
+                                <th>Duración (años)</th>
+                                <th>Sector</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" class="form-control" name="puesto"
+                                        value="{{ $isForTesting ? 'Analista' : '' }}"></td>
+                                <td><input type="text" class="form-control" name="funciones"
+                                        value="{{ $isForTesting ? 'Análisis de datos' : '' }}"></td>
+                                <td><input type="text" class="form-control" name="empresa"
+                                        value="{{ $isForTesting ? 'Empresa Ejemplo' : '' }}"></td>
+                                <td><input type="text" class="form-control" name="duracion_trabajo"
+                                        value="{{ $isForTesting ? '2' : '' }}"></td>
+                                <td><input type="text" class="form-control" name="sector_anterior"
+                                        value="{{ $isForTesting ? 'Tecnología' : '' }}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Bloque Motivos --}}
+            <div
+                class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                <h2 class="form-section-title text-center mb-5">Motivos para solicitar el Curso</h2>
+                <div class="row">
+                    <x-checkbox-group name="motivos" config-key="options.motivo_participacion"
+                        label="Motivos para solicitar el Curso" :columns="2" :selected="$isForTesting ? array_keys(config('options.motivo_participacion')) : []" />
+                </div>
+            </div>
+
+            {{-- Bloque Autorizaciones --}}
+            <div
+                class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                <h2 class="form-section-title text-center mb-5">Autorizaciones</h2>
+                <p class="mb-4">{{ config('declaraciones.autorizaciones') }}</p>
+                <div class="row">
+                    <x-checkbox-group name="autorizaciones" config-key="options.autorizaciones" label="Autorizaciones"
+                        :columns="1" :selected="$isForTesting ? array_keys(config('options.autorizaciones')) : []" />
+                </div>
+                <p class="mt-3 text-danger fst-italic">{{ config('declaraciones.no_autoriza') }}</p>
+            </div>
+
+            {{-- Lugar y Fecha --}}
+            <div
+                class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
+                <div class="row">
+                    <div class="col-md-8 mb-4">
+                        <label for="lugar" class="form-label">Lugar</label>
+                        <input type="text" class="form-control" id="lugar" name="lugar" placeholder="Ciudad"
+                            value="{{ $isForTesting ? 'Madrid' : '' }}">
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <label for="fecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha"
+                            value="{{ $isForTesting ? now()->format('Y-m-d') : '' }}">
+                    </div>
+                </div>
+            </div>
+
+            {{-- Firma --}}
+            <div class="row" id="signature">
                 <div
                     class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
-                    <h2 class="form-section-title text-center mb-5">Formación Profesional</h2>
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Denominación Curso</th>
-                                    <th>Año</th>
-                                    <th>Duración (Horas)</th>
-                                    <th>Centro</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><input type="text" class="form-control" name="curso[]"
-                                            value="{{ $isForTesting ? 'Excel Avanzado' : old('curso.0') }}"></td>
-                                    <td><input type="text" class="form-control" name="anio[]"
-                                            value="{{ $isForTesting ? '2024' : old('anio.0') }}"></td>
-                                    <td><input type="text" class="form-control" name="duracion[]"
-                                            value="{{ $isForTesting ? '20' : old('duracion.0') }}"></td>
-                                    <td><input type="text" class="form-control" name="centro[]"
-                                            value="{{ $isForTesting ? 'Centro Ejemplo' : old('centro.0') }}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="row mb-3" id="otro_curso">
-                        <div class="col-md-4 d-flex align-items-center">
-                            <label for="otro_curso" class="form-label mb-0">¿Está matriculado en otro curso?
-                                ¿Cuál?</label>
-                        </div>
-                        <div class="col-md-8">
-                            <input type="text" class="form-control" id="otro_curso" name="otro_curso"
-                                placeholder="Nombre del curso"
-                                value="{{ $isForTesting ? 'Curso de Liderazgo' : old('otro_curso') }}">
-                        </div>
-                    </div>
-                </div>
+                    @include('components.sign-canvas')
 
-                {{-- Bloque Experiencia Profesional --}}
-                <div class="row">
-                    <div
-                        class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
-                        <h2 class="form-section-title text-center mb-5">Experiencia Profesional</h2>
-                        <div class="table-responsive">
-                            <table class="table table-bordered align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Puesto</th>
-                                        <th>Funciones</th>
-                                        <th>Empresa </th>
-                                        <th>Duración (años)</th>
-                                        <th>Sector</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><input type="text" class="form-control" name="puesto"
-                                                value="{{ $isForTesting ? 'Analista' : old('puesto') }}"></td>
-                                        <td><input type="text" class="form-control" name="funciones"
-                                                value="{{ $isForTesting ? 'Análisis de datos' : old('funciones') }}"></td>
-                                        <td><input type="text" class="form-control" name="empresa"
-                                                value="{{ $isForTesting ? 'Empresa Ejemplo' : old('empresa') }}"></td>
-                                        <td><input type="text" class="form-control" name="duracion_trabajo"
-                                                value="{{ $isForTesting ? '2' : old('duracion_trabajo') }}"></td>
-                                        <td><input type="text" class="form-control" name="sector_anterior"
-                                                value="{{ $isForTesting ? 'Tecnología' : old('sector_anterior') }}"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Bloque Motivos --}}
-                <div class="row" id="motivos">
-                    <div
-                        class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
-                        <h2 class="form-section-title text-center mb-5">Motivos para solicitar el Curso</h2>
-                        <div class="row">
-                            <x-checkbox-group name="motivos" config-key="options.motivo_participacion"
-                                label="Motivos para solicitar el Curso" :columns="2" :selected="$isForTesting ? array_keys(config('options.motivo_participacion')) : []" />
-
-                        </div>
-                        <div id="motivos_error"></div>
-                    </div>
-                </div>
-
-                {{-- Bloque Autorizaciones --}}
-                <div class="row" id="autorizaciones">
-                    <div
-                        class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
-                        <h2 class="form-section-title text-center mb-5">Autorizaciones</h2>
-
-                        {{-- Texto legal antes de los checks --}}
-                        <p class="mb-4">
-                            {{ config('declaraciones.autorizaciones') }}
-                        </p>
-
-                        <div class="row">
-                            <x-checkbox-group name="autorizaciones" config-key="options.autorizaciones"
-                                label="Autorizaciones" :columns="1" :selected="$isForTesting ? array_keys(config('options.autorizaciones')) : []" />
-                        </div>
-
-                        {{-- Texto informativo bajo los checks --}}
-                        <p class="mt-3 text-danger fst-italic">
-                            {{ config('declaraciones.no_autoriza') }}
-                        </p>
-                    </div>
-                </div>
-
-                {{-- Lugar y Fecha --}}
-                <div class="row">
-                    <div
-                        class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
-                        <div class="row">
-                            <div class="col-md-8 mb-4">
-                                <label for="lugar" class="form-label">Lugar</label>
-                                <input type="text" class="form-control" id="lugar" name="lugar"
-                                    placeholder="Ciudad" value="{{ $isForTesting ? 'Madrid' : old('lugar') }}">
-                            </div>
-                            <div class="col-md-4 mb-4">
-                                <label for="fecha" class="form-label">Fecha</label>
-                                <input type="date" class="form-control" id="fecha" name="fecha"
-                                    value="{{ $isForTesting ? now()->format('Y-m-d') : old('fecha') }}">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Firma --}}
-                <div class="row" id="signature">
-                    <div
-                        class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12 px-lg-5 px-3 py-4 mb-4 rounded alert alert-light">
-                        @include('components.sign-canvas')
-
-                    </div>
                 </div>
             </div>
+        </div>
 
-            {{-- Botón de envío --}}
-            <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary px-5 py-2">Enviar Solicitud</button>
-            </div>
+        {{-- Botón de envío --}}
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-5 py-2">Enviar Solicitud</button>
+        </div>
         </div>
     </form>
 @endsection
