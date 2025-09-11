@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
         empresa: [{ rule: 'required', errorMessage: 'Nombre de empresa obligatorio' }],
         nif_empresa: [
             { rule: 'required', errorMessage: 'NIF de empresa obligatorio' },
-            { validator: value => isValidCif(value), errorMessage: 'CIF inválido' }
+            { validator: value => isValidCifDniNie(value), errorMessage: 'CIF inválido' }
         ],
         actividad_empresa: [{ rule: 'required', errorMessage: 'Actividad de la empresa obligatoria' }],
         tamano_empresa: [{ rule: 'required', errorMessage: 'Selecciona tamaño de empresa' }],
